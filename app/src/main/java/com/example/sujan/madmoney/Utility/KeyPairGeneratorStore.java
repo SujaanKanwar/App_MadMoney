@@ -9,6 +9,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Calendar;
@@ -59,12 +60,12 @@ public class KeyPairGeneratorStore {
         }
     }
 
-    public static String getPublicKey(){
+    public static RSAPublicKey getPublicKey(){
         try {
             KeyStore keyStore = KeyStore.getInstance(androidKeyStore);
             keyStore.load(null);
             KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyAlias, null);
-            return bytesToString(keyEntry.getCertificate().getPublicKey().getEncoded());
+            return (RSAPublicKey)keyEntry.getCertificate().getPublicKey();
 
         } catch (Exception e) {
             String exce = e.toString();

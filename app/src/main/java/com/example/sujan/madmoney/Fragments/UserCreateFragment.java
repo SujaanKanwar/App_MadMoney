@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,10 @@ import com.example.sujan.madmoney.Connectors.CreateUserConnector;
 import com.example.sujan.madmoney.Resources.FileOperations;
 import com.example.sujan.madmoney.Utility.KeyPairGeneratorStore;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.security.interfaces.RSAPublicKey;
 
 
 public class UserCreateFragment extends Fragment implements CreateUserConnector.OnTaskComplete {
@@ -58,7 +62,7 @@ public class UserCreateFragment extends Fragment implements CreateUserConnector.
                 SharedPreferences setting = this.getActivity().getSharedPreferences("MadMoney", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = setting.edit();
 
-                String userAddressId= jsonObject.getString("UserAddressId");
+                String userAddressId = jsonObject.getString("UserAddressId");
                 editor.putString("UserAddressId", userAddressId);
                 editor.putBoolean("IsUserCreated", true);
                 editor.commit();
@@ -90,7 +94,7 @@ public class UserCreateFragment extends Fragment implements CreateUserConnector.
 
             KeyPairGeneratorStore.generateKeyPairAndStoreInKeyStore(getActivity().getApplication().getApplicationContext());
 
-            String publicKey = KeyPairGeneratorStore.getPublicKey();
+            String publicKey = getJSONFormattedPublicKey();
 
             CreateUserRequest.Address address = new CreateUserRequest.Address(countryCode.getText().toString(), state.getText().toString(), city.getText().toString(), local.getText().toString());
 
@@ -100,6 +104,33 @@ public class UserCreateFragment extends Fragment implements CreateUserConnector.
 
             createUserConnector.createUser(request.toJSON());
         }
+    }
+
+    private String getJSONFormattedPublicKey() {
+        JSONObject jsonObject = null;
+        RSAPublicKey publicKey = KeyPairGeneratorStore.getPublicKey();
+        try {
+            jsonObject = new JSONObject();
+            jsonObject.put("MOD", Base64.encodeToString(stripLeadingZeros(publicKey.getModulus().toByteArray()), Base64.NO_WRAP));
+            jsonObject.put("EXP", Base64.encodeToString(publicKey.getPublicExponent().toByteArray(), Base64.NO_WRAP));
+        } catch (JSONException e) {
+            Log.e("JSON", e.getMessage());
+        }
+        return jsonObject.toString();
+    }
+    private byte[] stripLeadingZeros(byte[] a) {
+        int lastZero = -1;
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] == 0) {
+                lastZero = i;
+            } else {
+                break;
+            }
+        }
+        lastZero++;
+        byte[] result = new byte[a.length - lastZero];
+        System.arraycopy(a, lastZero, result, 0, result.length);
+        return result;
     }
 
     private boolean isEnteredFieldsValid() {

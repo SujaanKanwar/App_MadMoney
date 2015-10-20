@@ -8,31 +8,29 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
 import com.example.sujan.madmoney.AppData.Money;
+import com.example.sujan.madmoney.Connectors.Constants;
+import com.example.sujan.madmoney.Cryptography.RSAEncryptionDecryption;
 import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Resources.DBMoneyStore;
 import com.example.sujan.madmoney.Requesters.FetchMoneyRequest;
 import com.example.sujan.madmoney.Connectors.FetchMoneyConnector;
+import com.example.sujan.madmoney.Utility.KeyPairGeneratorStore;
 import com.example.sujan.madmoney.Utility.MoneyStore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -46,6 +44,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
     private FetchMoneyConnector fetchMoneyConnector;
     private String userAddressId;
     private SharedPreferences setting;
+    private String TAG = "FETCHMONEY";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,11 +60,11 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
         if (lastUpdatedDate == null || Math.abs(Date.parse(lastUpdatedDate) - currentLocalTime.getTime()) > 100000) {
 
-            FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId);
+            FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.INIT);
 
             fetchMoneyConnector = new FetchMoneyConnector(this);
 
-            fetchMoneyConnector.fetchMoney(request.toJSON());
+            fetchMoneyConnector.service(request.toJSONString());
         }
     }
 
@@ -86,32 +85,53 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         JSONArray jsonMoneyArray;
         Boolean isSuccess;
         String encryptedOTP;
-
+        String status;
         try {
             jsonObject = new JSONObject(responseString);
             isSuccess = jsonObject.getBoolean("IsSuccess");
             encryptedOTP = jsonObject.getString("encryptedOTP");
+            status = jsonObject.getString("status");
             jsonMoneyArray = jsonObject.getJSONArray("moneyList");
-
-
         } catch (JSONException e) {
             return;
-
         }
         if (!isSuccess) {
-            String decryptedOTP = decryptOTP(encryptedOTP);
+            Log.e(TAG, status);
+            return;
+        }
+        switch (status) {
+            case Constants.FetchMoneyResponse.EMPTY_AC:
+                break;
+            case Constants.FetchMoneyResponse.OTP_SENT:
 
-            FetchMoneyRequest request = new FetchMoneyRequest(decryptedOTP, userAddressId);
+                String decryptedOTP = decryptOTP(encryptedOTP);
 
-            fetchMoneyConnector.fetchMoney(request.toJSON());
+                if (decryptedOTP != null) {
 
-        } else {
-            Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
+                    FetchMoneyRequest request = new FetchMoneyRequest(decryptedOTP, userAddressId, Constants.FetchMoneyRequest.DECRYPTED_OTP);
 
-            setting.edit().putString("LastUpdate", currentLocalTime.toString()).commit();
+                    fetchMoneyConnector.service(request.toJSONString());
+                }
+                break;
 
-            if (MoneyStore.store(this.getActivity().getApplicationContext(), jsonMoneyArray))
-                this.refreshMoney();
+            case Constants.FetchMoneyResponse.MONEY_SENT:
+
+                Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
+
+                setting.edit().putString("LastUpdate", currentLocalTime.toString()).commit();
+
+                if (MoneyStore.store(this.getActivity().getApplicationContext(), jsonMoneyArray)) {
+
+                    this.refreshMoney();
+
+                    FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.RECEIVED_OK);
+
+                    fetchMoneyConnector.service(request.toJSONString());
+                }
+                break;
+
+            case Constants.FetchMoneyResponse.OTP_MISMATCHED:
+                break;
         }
     }
 
@@ -135,7 +155,14 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
 
     private String decryptOTP(String encryptedOTP) {
-        return "dummy";
+
+        String decryptedOtp = null;
+        try {
+            decryptedOtp = new String(RSAEncryptionDecryption.Decrypt(encryptedOTP, KeyPairGeneratorStore.getPrivateKey()), Charset.forName("UTF8"));
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return decryptedOtp;
     }
 
     private void setDragListener(ImageButton moneyObject, final int value) {
@@ -164,7 +191,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
     public void refreshMoneyView() {
 
         HorizontalScrollView horizontalScrollView = (HorizontalScrollView) getActivity().findViewById(R.id.horizontalScrollView);
-        LinearLayout linearLayout =(LinearLayout) horizontalScrollView.findViewById(R.id.scrollViewLinearLayout);
+        LinearLayout linearLayout = (LinearLayout) horizontalScrollView.findViewById(R.id.scrollViewLinearLayout);
         linearLayout.removeAllViews();
 
         HashMap<Integer, List<Money>> moneyCollection = GlobalStatic.getMoneyCollection();

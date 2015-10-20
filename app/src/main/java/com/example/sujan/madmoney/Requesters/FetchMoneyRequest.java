@@ -10,23 +10,24 @@ public class FetchMoneyRequest {
 
     private String decryptedOTP;
     private String userAddressId;
+    private String requestType;
 
-    public FetchMoneyRequest(String decryptedOTP, String userAddressId) {
+    public FetchMoneyRequest(String decryptedOTP, String userAddressId, String requestType) {
         this.decryptedOTP = decryptedOTP;
         this.userAddressId = userAddressId;
+        this.requestType = requestType;
     }
 
-    public String toJSON() {
-
+    public String toJSONString() {
         JSONObject jsonObject = new JSONObject();
         JSONObject jsonObject1 = new JSONObject();
         try {
             jsonObject.put("DecryptedOTP", this.decryptedOTP);
             jsonObject.put("UserAddressId", this.userAddressId);
+            jsonObject.put("RequestType", this.requestType);
             jsonObject1.put("data", jsonObject);
             return jsonObject1.toString();
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return "";
         }

@@ -33,8 +33,6 @@ public class DBMoneyStore extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        String query = "DROP TABLE IF EXISTS " + TABLE_NAME;
-        db.execSQL(query);
         onCreate(db);
     }
 

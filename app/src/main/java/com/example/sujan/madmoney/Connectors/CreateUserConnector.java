@@ -1,12 +1,15 @@
 package com.example.sujan.madmoney.Connectors;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.sujan.madmoney.Fragments.UserCreateFragment;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -19,14 +22,14 @@ import java.net.URL;
 public class CreateUserConnector {
 
     public CreateUserConnector(UserCreateFragment userCreateFragment) {
-        onTaskCompleteListner = (OnTaskComplete) userCreateFragment;
+        onTaskCompleteListner = userCreateFragment;
     }
 
     private static final String LOGGER_TAG = "CreateUserServiceCall";
 
-    private static final String createUserUrl = "http://www.localhost.com:7000/";
+    private static final String createUserUrl = "http://192.168.0.104/MadMoneyService.svc/CreateUser";
 
-    private static final boolean isDummy = true;
+    private static final boolean isDummy = false;
 
     private OnTaskComplete onTaskCompleteListner = null;
 
@@ -36,39 +39,31 @@ public class CreateUserConnector {
 
     private String post(String url, String postParameters) {
         HttpURLConnection urlConnection = null;
+        String outputStr = "";
         if (!isDummy) {
             try {
                 URL urlToRequest = new URL(url);
                 urlConnection = (HttpURLConnection) urlToRequest.openConnection();
-
                 if (postParameters != null) {
                     urlConnection.setDoOutput(true);
                     urlConnection.setRequestMethod("POST");
-                    urlConnection.setFixedLengthStreamingMode(
-                            postParameters.getBytes().length);
+                    urlConnection.setFixedLengthStreamingMode(postParameters.getBytes().length);
                     urlConnection.setRequestProperty("Content-Type", "application/json");
-
-                    //transferData the POST out
                     PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
                     out.print(postParameters);
                     out.close();
                 }
-
-                // handle issues
                 int statusCode = urlConnection.getResponseCode();
                 if (statusCode != HttpURLConnection.HTTP_OK) {
-                    // TODO: 30/9/15 thow service exception
                     throw new IOException("Service is response is not ok");
                 }
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                return in.toString();
-
-            } catch (MalformedURLException e) {
-                // handle invalid URL
-            } catch (SocketTimeoutException e) {
-                // hadle timeout
-            } catch (IOException e) {
-                // handle I/0
+                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                String strTemp ="";
+                while (null != (strTemp = br.readLine())) {
+                    outputStr += strTemp;
+                }
+            } catch (Exception e) {
+                Log.e("Connector", e.getMessage());
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -76,9 +71,8 @@ public class CreateUserConnector {
             }
         } else {
             return createDummyResponse();
-
         }
-        return null;
+        return outputStr;
     }
 
     private String createDummyResponse() {

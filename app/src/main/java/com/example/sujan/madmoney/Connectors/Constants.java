@@ -33,4 +33,18 @@ public class Constants {
         public static final String VALUE = "value";
     }
 
+    public static class FetchMoneyRequest {
+        public static final String INIT = "INIT";
+        public static final String DECRYPTED_OTP = "DECRYPTED_OTP";
+        public static final String RECEIVED_OK = "RECEIVED_OK";
+    }
+
+    public static class FetchMoneyResponse {
+        public static final String EMPTY_AC = "EMPTY_AC";
+        public static final String OTP_SENT = "OTP_SENT";
+        public static final String MONEY_SENT = "MONEY_SENT";
+        public static final String OTP_MISMATCHED = "OTP_MISMATCHED";
+
+    }
+
 }
