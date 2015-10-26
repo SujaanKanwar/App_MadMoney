@@ -58,7 +58,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
         Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
 
-        if (lastUpdatedDate == null || Math.abs(Date.parse(lastUpdatedDate) - currentLocalTime.getTime()) > 100000) {
+        if (lastUpdatedDate == null || Math.abs(Date.parse(lastUpdatedDate) - currentLocalTime.getTime()) > 1000) {
 
             FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.INIT);
 
@@ -97,41 +97,42 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         }
         if (!isSuccess) {
             Log.e(TAG, status);
-            return;
         }
-        switch (status) {
-            case Constants.FetchMoneyResponse.EMPTY_AC:
-                break;
-            case Constants.FetchMoneyResponse.OTP_SENT:
+        else {
+            switch (status) {
+                case Constants.FetchMoneyResponse.EMPTY_AC:
+                    break;
+                case Constants.FetchMoneyResponse.OTP_SENT:
 
-                String decryptedOTP = decryptOTP(encryptedOTP);
+                    String decryptedOTP = decryptOTP(encryptedOTP);
 
-                if (decryptedOTP != null) {
+                    if (decryptedOTP != null) {
 
-                    FetchMoneyRequest request = new FetchMoneyRequest(decryptedOTP, userAddressId, Constants.FetchMoneyRequest.DECRYPTED_OTP);
+                        FetchMoneyRequest request = new FetchMoneyRequest(decryptedOTP, userAddressId, Constants.FetchMoneyRequest.DECRYPTED_OTP);
 
-                    fetchMoneyConnector.service(request.toJSONString());
-                }
-                break;
+                        fetchMoneyConnector.service(request.toJSONString());
+                    }
+                    break;
 
-            case Constants.FetchMoneyResponse.MONEY_SENT:
+                case Constants.FetchMoneyResponse.MONEY_SENT:
 
-                Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
+                    Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
 
-                setting.edit().putString("LastUpdate", currentLocalTime.toString()).commit();
+                    setting.edit().putString("LastUpdate", currentLocalTime.toString()).commit();
 
-                if (MoneyStore.store(this.getActivity().getApplicationContext(), jsonMoneyArray)) {
+                    if (MoneyStore.store(this.getActivity().getApplicationContext(), jsonMoneyArray)) {
 
-                    this.refreshMoney();
+                        this.refreshMoney();
 
-                    FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.RECEIVED_OK);
+                        FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.RECEIVED_OK);
 
-                    fetchMoneyConnector.service(request.toJSONString());
-                }
-                break;
+                        fetchMoneyConnector.service(request.toJSONString());
+                    }
+                    break;
 
-            case Constants.FetchMoneyResponse.OTP_MISMATCHED:
-                break;
+                case Constants.FetchMoneyResponse.OTP_MISMATCHED:
+                    break;
+            }
         }
     }
 
