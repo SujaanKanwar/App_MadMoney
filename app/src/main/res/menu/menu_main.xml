@@ -1,11 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.sujan.madmoney.MainActivity">
+    tools:context=".MainActivity">
     <item
-        android:id="@+id/refresh_money"
+        android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="Refresh Money"
-        app:showAsAction="always"
+        app:showAsAction="never"
         />
 </menu>

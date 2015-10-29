@@ -71,7 +71,7 @@ public class UserCreateFragment extends Fragment implements CreateUserConnector.
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 WalletFragment walletFragment = new WalletFragment();
-                fragmentTransaction.replace(R.id.fragment_container, walletFragment);
+//                fragmentTransaction.replace(R.id.fragment_container, walletFragment);
                 fragmentTransaction.commit();
             }
         } catch (Exception e) {

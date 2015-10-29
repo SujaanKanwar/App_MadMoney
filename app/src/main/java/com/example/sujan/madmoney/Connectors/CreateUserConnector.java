@@ -21,8 +21,8 @@ import java.net.URL;
  */
 public class CreateUserConnector {
 
-    public CreateUserConnector(UserCreateFragment userCreateFragment) {
-        onTaskCompleteListner = userCreateFragment;
+    public CreateUserConnector(OnTaskComplete onTaskComplete) {
+        onTaskCompleteListner = onTaskComplete;
     }
 
     private static final String LOGGER_TAG = "CreateUserServiceCall";
