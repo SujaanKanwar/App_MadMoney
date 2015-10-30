@@ -12,11 +12,15 @@
     <group
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_share"
+            android:id="@+id/nav_contact_us"
+            android:icon="@android:drawable/ic_menu_share"
+            android:title="Contact Us" />
+        <item
+            android:id="@+id/nav_recharge"
             android:icon="@android:drawable/ic_menu_share"
             android:title="Recharge" />
         <item
-            android:id="@+id/nav_send"
+            android:id="@+id/nav_deposit_to_my_bank"
             android:icon="@android:drawable/ic_menu_send"
             android:title="Deposit To My Bank A/C" />
     </group>

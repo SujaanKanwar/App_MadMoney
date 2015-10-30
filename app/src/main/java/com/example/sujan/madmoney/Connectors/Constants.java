@@ -24,7 +24,7 @@ public class Constants {
     public static final String TELL_ME_YOUR_ADDRESS = "TELL_ME_YOUR_ADDRESS";
     public static final String MY_ADDRESS = "MY_ADDRESS";
 
-    //Money Constants
+    //Money SharedPrefConstants
     public static class Money {
         public static final String DATED = "dated";
         public static final String ID = "id";

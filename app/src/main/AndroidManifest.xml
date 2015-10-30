@@ -34,6 +34,16 @@
             android:name=".RegisterUser.RegisterUserActivity"
             android:label="@string/title_activity_register_user" >
         </activity>
+        <activity
+            android:name=".RechargeActivity"
+            android:label="@string/title_activity_recharge"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
+        <activity
+            android:name=".DepositInBankActivity"
+            android:label="@string/title_activity_deposit_in_bank"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>

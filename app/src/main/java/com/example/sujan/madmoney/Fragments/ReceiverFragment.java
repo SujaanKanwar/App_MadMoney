@@ -97,11 +97,11 @@ public class ReceiverFragment extends Fragment {
 
     @Override
     public void onStop() {
-        if (btAdapter != null && btAdapter.isEnabled()) {
-//            if(btAdapter.isDiscovering())
-//                btAdapter.cancelDiscovery();
-            btAdapter.disable();
-        }
+//        if (btAdapter != null && btAdapter.isEnabled()) {
+////            if(btAdapter.isDiscovering())
+////                btAdapter.cancelDiscovery();
+//            btAdapter.disable();
+//        }
         super.onStop();
     }
 
