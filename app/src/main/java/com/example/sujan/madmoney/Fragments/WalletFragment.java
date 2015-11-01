@@ -23,6 +23,7 @@ import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Resources.DBMoneyStore;
 import com.example.sujan.madmoney.Requesters.FetchMoneyRequest;
 import com.example.sujan.madmoney.Connectors.FetchMoneyConnector;
+import com.example.sujan.madmoney.SharedConstants.SharedPrefConstants;
 import com.example.sujan.madmoney.Utility.KeyPairGeneratorStore;
 import com.example.sujan.madmoney.Utility.MoneyStore;
 
@@ -50,11 +51,11 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setting = this.getActivity().getSharedPreferences("MadMoney", Context.MODE_PRIVATE);
+        setting = this.getActivity().getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        userAddressId = setting.getString("UserAddressId", null);
+        userAddressId = setting.getString(SharedPrefConstants.USER_ADDRESS_ID, null);
 
-        String lastUpdatedDate = setting.getString("LastUpdate", null);
+        String lastUpdatedDate = setting.getString(SharedPrefConstants.LAST_UPDATED, null);
 
         Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
 
@@ -118,7 +119,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
                     Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
 
-                    setting.edit().putString("LastUpdate", currentLocalTime.toString()).commit();
+                    setting.edit().putString(SharedPrefConstants.LAST_UPDATED, currentLocalTime.toString()).commit();
 
                     if (MoneyStore.store(this.getActivity().getApplicationContext(), jsonMoneyArray)) {
 

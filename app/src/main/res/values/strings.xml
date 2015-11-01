@@ -30,5 +30,7 @@
     <string name="error_empty_password" >Enter Password</string>
     <string name="invalid_password_length" >Password should be more than 3 characters</string>
     <string name="erro_password_mismatch" >Password Mismatch</string>
+    <string name="title_activity_recharge">RechargeActivity</string>
+    <string name="title_activity_deposit_in_bank">DepositInBankActivity</string>
 
 </resources>

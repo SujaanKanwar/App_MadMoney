@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
@@ -23,7 +22,7 @@ import com.example.sujan.madmoney.Fragments.BucketFragment;
 import com.example.sujan.madmoney.Fragments.ReceiverFragment;
 import com.example.sujan.madmoney.Fragments.WalletFragment;
 import com.example.sujan.madmoney.RegisterUser.RegisterUserActivity;
-import com.example.sujan.madmoney.SharedConstants.Constants;
+import com.example.sujan.madmoney.SharedConstants.SharedPrefConstants;
 
 
 public class MainActivity extends AppCompatActivity implements WalletFragment.XMLClickables,
@@ -32,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
     private WalletFragment walletFragment;
     private ReceiverFragment receiverFragment;
     private BucketFragment bucketFragment;
+
+    private int NEW_USER_REGISTERED = 1;
 
 
     @Override
@@ -45,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
 
         if (savedInstanceState == null) {
 
-            SharedPreferences sharedPreferences = getSharedPreferences("MadMoney", Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-            if (!sharedPreferences.getBoolean("IsUserCreated", false)) {
+            if (!sharedPreferences.getBoolean(SharedPrefConstants.IS_USER_CREATED, false)) {
 
                 activityRegisterNewUser();
 
@@ -81,17 +82,14 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         // Handle navigation view item clicks here.
         int id = menuItem.getItemId();
-
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        Intent intent;
+        if (id == R.id.nav_recharge) {
+            intent = new Intent(this,RechargeActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_deposit_to_my_bank) {
+            intent = new Intent(this,DepositInBankActivity.class);
+            startActivity(intent);
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -100,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
 
     private void initializeUserVariables(SharedPreferences sharedPreferences) {
 
-        String userAddress = sharedPreferences.getString(Constants.USER_ADDRESS_ID, null);
-        String userName = sharedPreferences.getString(Constants.USER_NAME, null);
+        String userAddress = sharedPreferences.getString(SharedPrefConstants.USER_ADDRESS_ID, null);
+        String userName = sharedPreferences.getString(SharedPrefConstants.USER_NAME, null);
 
         GlobalStatic.setUserAddressId(userAddress);
 
@@ -109,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
         TextView userAddressView = (TextView) findViewById(R.id.address_id);
 
         userNameView.setText(userName);
-        userAddressView.setText(userAddress);
+        userAddressView.setText("Copy Address");
+        userAddressView.setTag(userAddress);
     }
 
     private void initializeMainFragments() {
@@ -129,6 +128,23 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
         fragmentTransaction.commit();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == NEW_USER_REGISTERED)
+        {
+            SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
+            Button registerMe = (Button) findViewById(R.id.register_me);
+
+            registerMe.setVisibility(View.GONE);
+
+            initializeMainFragments();
+
+            initializeUserVariables(sharedPreferences);
+        }
+    }
+
     private void activityRegisterNewUser() {
 
         Button registerMe = (Button) findViewById(R.id.register_me);
@@ -142,8 +158,7 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, RegisterUserActivity.class);
-
-                startActivity(intent);
+                startActivityForResult(intent, NEW_USER_REGISTERED);
             }
         });
     }
