@@ -1,0 +1,35 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 47972352 bytes for committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:2747), pid=10888, tid=1817926464
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_60-b19) (build 1.7.0_60-b19)
+# Java VM: Java HotSpot(TM) Server VM (24.60-b09 mixed mode linux-x86 )
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x6c410400):  VMThread [stack: 0x6c535000,0x6c5b6000] [id=10896]
+
+Stack: [0x6c535000,0x6c5b6000],  sp=0x6c5b49a0,  free space=510k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x7e67e6]  VMError::report_and_die()+0x1a6
+V  [libjvm.so+0x33d652]  report_vm_out_of_memory(char const*, int, unsigned int, char const*)+0x72
+V  [libjvm.so+0x684b41]  os::Linux::commit_memory_impl(char*, unsigned int, bool)+0xe1
+V  [libjvm.so+0x685008]  os::pd_commit_memory(char*, unsigned int, unsigned int, bool)+0x28
+V  [libjvm.so+0x67e76c]  os::commit_memory(char*, unsigned int, unsigned int, bool)+0x2c

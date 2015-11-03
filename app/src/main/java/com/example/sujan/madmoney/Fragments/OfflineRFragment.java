@@ -36,17 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ReceiverFragment extends Fragment {
+public class OfflineRFragment extends Fragment {
 
-    BluetoothAdapter btAdapter;
-
-    List<BluetoothDevice> bluetoothDeviceList;
-
-    MyRecyclerAdaptor myRecyclerAdaptor;
-
-    RecyclerView recyclerView;
-
-    BluetoothUtility bluetoothUtility = null;
+    private BluetoothAdapter btAdapter;
+    private List<BluetoothDevice> bluetoothDeviceList;
+    private MyRecyclerAdaptor myRecyclerAdaptor;
+    private RecyclerView recyclerView;
+    private BluetoothUtility bluetoothUtility = null;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -67,7 +63,8 @@ public class ReceiverFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_reciever, container, false);
+
+        return inflater.inflate(R.layout.fragment_offline, container, false);
     }
 
     @Override
@@ -86,13 +83,18 @@ public class ReceiverFragment extends Fragment {
 
         super.onStart();
 
-        if (!btAdapter.isEnabled()) {
+        if(btAdapter == null)
+            onDestroy();
+        else {
 
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (!btAdapter.isEnabled()) {
 
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        } else
-            initialise();
+                Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+                startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            } else
+                initialise();
+        }
     }
 
     @Override
@@ -111,24 +113,17 @@ public class ReceiverFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        if (btAdapter != null && btAdapter.isEnabled()) {
-//            if(btAdapter.isDiscovering())
-//                btAdapter.cancelDiscovery();
-            btAdapter.disable();
-        }
-        super.onDetach();
-    }
-
-    @Override
     public void onDestroy() {
         if (btAdapter != null && btAdapter.isEnabled()) {
-//            if(btAdapter.isDiscovering())
-//                btAdapter.cancelDiscovery();
+            if(btAdapter.isDiscovering())
+                btAdapter.cancelDiscovery();
             btAdapter.disable();
         }
 
-        getActivity().unregisterReceiver(mReceiver);
+        try {
+            getActivity().unregisterReceiver(mReceiver);
+        } catch (Exception e) {
+        }
 
         super.onDestroy();
     }

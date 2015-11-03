@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context="com.example.sujan.madmoney.Fragments.ReceiverFragment">
+    tools:context="com.example.sujan.madmoney.Fragments.OfflineRFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
