@@ -15,14 +15,6 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/onOffSwitch"
-                android:layout_centerVertical="true"
-                android:textOff="Offline"
-                android:textOn="Online"
-                android:layout_centerHorizontal="true" />
 
             <FrameLayout
                 android:id="@+id/top_fragment_container"

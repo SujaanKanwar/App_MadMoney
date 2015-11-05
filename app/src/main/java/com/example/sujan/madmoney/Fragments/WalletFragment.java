@@ -138,12 +138,6 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
     }
 
 
-    public interface XMLClickables {
-        void refreshMoney(View view);
-
-        void refreshMoney();
-    }
-
     public void refreshMoney() {
 
         DBMoneyStore dbMoneyStore = new DBMoneyStore(this.getActivity().getApplicationContext());

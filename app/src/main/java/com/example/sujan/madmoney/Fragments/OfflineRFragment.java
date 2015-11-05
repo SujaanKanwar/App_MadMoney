@@ -73,7 +73,7 @@ public class OfflineRFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
 
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.devicesListView);
+        recyclerView = (RecyclerView) getActivity().findViewById(R.id.offline_devicesListView);
 
         recyclerView.setLayoutManager(layoutManager);
     }
@@ -95,21 +95,6 @@ public class OfflineRFragment extends Fragment {
             } else
                 initialise();
         }
-    }
-
-    @Override
-    public void onStop() {
-//        if (btAdapter != null && btAdapter.isEnabled()) {
-////            if(btAdapter.isDiscovering())
-////                btAdapter.cancelDiscovery();
-//            btAdapter.disable();
-//        }
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 
     @Override

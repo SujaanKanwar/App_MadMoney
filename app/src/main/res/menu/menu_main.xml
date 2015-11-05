@@ -2,10 +2,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/offline_payment"
+            android:checked="true"
+            android:title="Offline Payment" />
+
+        <item
+            android:id="@+id/online_payment"
+            android:title="Online Payment" />
+    </group>
+
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/refresh_money"
         android:orderInCategory="100"
-        android:title="Refresh Money"
-        app:showAsAction="never"
-        />
+        android:title="Refresh Money" />
+    <item
+        android:id="@+id/sign_off"
+        android:orderInCategory="100"
+        android:title="Sign Off" />
+
+
 </menu>

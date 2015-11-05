@@ -24,13 +24,10 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by sujan on 13/10/15.
  */
 public class BluetoothUtility {
-    BluetoothConnector bluetoothConnector = null;
+    private BluetoothConnector bluetoothConnector = null;
     private Handler receiverHandler;
-
-    Context context;
-
-    BluetoothDevice device;
-
+    private Context context;
+    private BluetoothDevice device;
 
     public BluetoothUtility(Context context, Handler btMessageHandler, BluetoothAdapter btAdapter) {
 
@@ -48,11 +45,9 @@ public class BluetoothUtility {
         send("");
     }
 
-
-
     private void send(String madMoneyAddress) {
         if (madMoneyAddress == "") {
-            bluetoothConnector.transferData(device, Constants.TELL_ME_YOUR_ADDRESS.getBytes(),Constants.TRANS_TYPE_MSG);
+            bluetoothConnector.transferData(device, Constants.TELL_ME_YOUR_ADDRESS.getBytes(), Constants.TRANS_TYPE_MSG);
         } else {
             String encryptedSynchronousKey;
 
@@ -74,7 +69,7 @@ public class BluetoothUtility {
                 data.put("MONEY", encryptMoney);
 
 
-                bluetoothConnector.transferData(device, data.toString().getBytes(),Constants.TRANS_TYPE_MONEY);
+                bluetoothConnector.transferData(device, data.toString().getBytes(), Constants.TRANS_TYPE_MONEY);
 
             } catch (Exception e) {
                 Log.e("Encryption Failure", e.getMessage());

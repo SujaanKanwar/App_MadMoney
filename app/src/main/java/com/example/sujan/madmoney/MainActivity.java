@@ -1,15 +1,11 @@
 package com.example.sujan.madmoney;
 
+import android.app.ActivityManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,9 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
@@ -31,10 +25,11 @@ import com.example.sujan.madmoney.Fragments.OfflineRFragment;
 import com.example.sujan.madmoney.Fragments.OnlineRFragment;
 import com.example.sujan.madmoney.Fragments.WalletFragment;
 import com.example.sujan.madmoney.RegisterUser.RegisterUserActivity;
+import com.example.sujan.madmoney.Services.BluetoothBackgroundService;
 import com.example.sujan.madmoney.SharedConstants.SharedPrefConstants;
 
 
-public class MainActivity extends AppCompatActivity implements WalletFragment.XMLClickables,
+public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     private FragmentTransaction fragmentTransaction;
@@ -53,10 +48,6 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
 
         initializeNavView();
 
-        initializeSeekBar();
-
-        initializeOnlineOfflineSwitch();
-
         if (savedInstanceState == null) {
 
             SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -70,7 +61,40 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
                 initializeMainFragments();
 
                 initializeUserVariables(sharedPreferences);
+
+                runBackgroundBTService();
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
+
+            case R.id.sign_off:
+                stopBackgroundBTService();
+                return true;
+
+            case R.id.online_payment:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    setOnlinePaymentMode();
+                }
+                return true;
+
+            case R.id.offline_payment:
+                if (!item.isChecked()) {
+                    item.setChecked(true);
+                    setOfflinePaymentMode();
+                }
+                return true;
+            case R.id.refresh_money:
+                refreshMoney();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -80,17 +104,6 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return true;
-    }
-
-    @Override
-    public void refreshMoney(View view) {
-        walletFragment.refreshMoney();
-    }
-
-    //refresh money from bucket fragment
-    @Override
-    public void refreshMoney() {
-        walletFragment.refreshMoneyView();
     }
 
     @Override
@@ -135,7 +148,42 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
             initializeMainFragments();
 
             initializeUserVariables(sharedPreferences);
+
+            runBackgroundBTService();
         }
+    }
+
+    private void runBackgroundBTService() {
+     if(!isMyServiceRunning(BluetoothBackgroundService.class))
+     {
+         BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService("BluetoothListenService");
+         Intent intent = new Intent(this,BluetoothBackgroundService.class);
+         bluetoothBackgroundService.startService(intent);
+     }
+    }
+
+    private void stopBackgroundBTService()
+    {
+        if(isMyServiceRunning(BluetoothBackgroundService.class))
+        {
+            BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService("BluetoothListenService");
+            Intent intent = new Intent(this,BluetoothBackgroundService.class);
+            bluetoothBackgroundService.stopService(intent);
+        }
+    }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void refreshMoney() {
+        if (walletFragment != null)
+            walletFragment.refreshMoneyView();
     }
 
 
@@ -205,82 +253,23 @@ public class MainActivity extends AppCompatActivity implements WalletFragment.XM
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initializeOnlineOfflineSwitch() {
+    private void setOfflinePaymentMode() {
 
-        Switch switchButton = (Switch) findViewById(R.id.onOffSwitch);
+        fragmentTransaction = getFragmentManager().beginTransaction();
 
-        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        if (offlineRFragment == null)
+            offlineRFragment = new OfflineRFragment();
 
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                fragmentTransaction = getFragmentManager().beginTransaction();
-
-                if (isChecked) {
-
-                    if (onlineRFragment == null)
-                        onlineRFragment = new OnlineRFragment();
-
-                    fragmentTransaction.replace(R.id.top_fragment_container, onlineRFragment);
-                } else {
-
-                    if (offlineRFragment == null)
-                        offlineRFragment = new OfflineRFragment();
-
-                    fragmentTransaction.replace(R.id.top_fragment_container, offlineRFragment);
-                }
-                fragmentTransaction.commit();
-            }
-        });
+        fragmentTransaction.replace(R.id.top_fragment_container, offlineRFragment).commit();
     }
 
-    private void initializeSeekBar() {
-        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+    private void setOnlinePaymentMode() {
 
-        Resources res = getResources();
-        Drawable myThumb = res.getDrawable(R.drawable.tasker);
+        fragmentTransaction = getFragmentManager().beginTransaction();
 
-        int h = 80;
-        int w = h;
+        if (onlineRFragment == null)
+            onlineRFragment = new OnlineRFragment();
 
-        Bitmap bmpOrg = ((BitmapDrawable) myThumb).getBitmap();
-
-        Bitmap bmpScaled = Bitmap.createScaledBitmap(bmpOrg, w, h, true);
-
-        Drawable newThumb = new BitmapDrawable(res, bmpScaled);
-
-        newThumb.setBounds(0, 0, newThumb.getIntrinsicWidth(), newThumb.getIntrinsicHeight());
-
-        seekBar.setThumb(newThumb);
-
-        seekBar.setOnSeekBarChangeListener(seekBarChangeListener());
-    }
-
-    private SeekBar.OnSeekBarChangeListener seekBarChangeListener() {
-        return new SeekBar.OnSeekBarChangeListener() {
-
-            int progress = 0;
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser) {
-                this.progress = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO: 3/11/15 save change states and do action
-                if (this.progress <= 25)
-                    seekBar.setProgress(0);
-                else if (this.progress > 25 && this.progress < 75)
-                    seekBar.setProgress(50);
-                else
-                    seekBar.setProgress(100);
-            }
-        };
+        fragmentTransaction.replace(R.id.top_fragment_container, onlineRFragment).commit();
     }
 }
