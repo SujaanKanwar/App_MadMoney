@@ -1,16 +1,23 @@
 package com.example.sujan.madmoney.Services;
 
 import android.app.IntentService;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.sujan.madmoney.Connectors.Constants;
+import com.example.sujan.madmoney.MainActivity;
+import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Utility.MoneyStore;
 
 import java.io.IOException;
@@ -40,9 +47,9 @@ public class BluetoothBackgroundService extends IntentService {
 
     private BluetoothServerSocket mmServerSocket;
 
-    public BluetoothBackgroundService(String name) {
+    public BluetoothBackgroundService() {
 
-        super(name);
+        super("MadMoneyService");
     }
 
     @Override
@@ -155,12 +162,32 @@ public class BluetoothBackgroundService extends IntentService {
         } else {
             MoneyStore.storeBluetoothTransferMoney(getApplicationContext(), receivedData);
 
-            setNotification();
+            showMoneyTransferNotification();
         }
     }
 
-    private void setNotification() {
+    private void showMoneyTransferNotification() {
+        NotificationCompat.Builder mBuilder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.notification_icon)
+                        .setContentTitle("MadMoney Transaction")
+                        .setContentText("Congratulation! Money has been transferred.");
 
+        Intent resultIntent = new Intent(this, MainActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(12, mBuilder.build());
     }
 
     private void sendMyAddress(BluetoothDevice remoteDevice) {

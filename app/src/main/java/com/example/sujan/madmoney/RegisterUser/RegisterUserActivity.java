@@ -97,6 +97,7 @@ public class RegisterUserActivity extends AppCompatActivity implements CreateUse
 
         } catch (JSONException e) {
             Toast.makeText(context, "Error while user creation. Try after some time.", Toast.LENGTH_SHORT).show();
+            showProgress(false);
             return;
         }
         if (status) {

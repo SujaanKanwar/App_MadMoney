@@ -44,6 +44,7 @@
             android:label="@string/title_activity_deposit_in_bank"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <service android:enabled="true" android:name="com.example.sujan.madmoney.Services.BluetoothBackgroundService"></service>
     </application>
 
 </manifest>

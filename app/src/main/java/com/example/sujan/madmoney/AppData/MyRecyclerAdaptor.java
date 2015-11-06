@@ -26,8 +26,7 @@ public class MyRecyclerAdaptor extends RecyclerView.Adapter<MyRecyclerAdaptor.Vi
     private List<BluetoothDevice> bluetoothDeviceList = GlobalStatic.getBluetoothDeviceList();
     private View.OnDragListener onDragListener;
 
-    public MyRecyclerAdaptor(View.OnDragListener onDragListener)
-    {
+    public MyRecyclerAdaptor(View.OnDragListener onDragListener) {
         this.onDragListener = onDragListener;
     }
 
@@ -57,6 +56,11 @@ public class MyRecyclerAdaptor extends RecyclerView.Adapter<MyRecyclerAdaptor.Vi
 
         TextView deviceNameTextView = (TextView) frameLayout.findViewById(R.id.deviceName);
 
+        //  Get the device list from the db
+        //1. Device Tell Me your address
+        //2. if returns save into the database
+        //3. Show to the UI
+
         deviceNameTextView.setText(bluetoothDeviceList.get(position).getName());
 
         frameLayout.setTag(bluetoothDeviceList.get(position).getAddress());
@@ -71,5 +75,7 @@ public class MyRecyclerAdaptor extends RecyclerView.Adapter<MyRecyclerAdaptor.Vi
     }
 
 }
+
+
 
 

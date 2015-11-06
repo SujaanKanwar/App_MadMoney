@@ -2,14 +2,18 @@ package com.example.sujan.madmoney;
 
 import android.app.ActivityManager;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -154,23 +158,21 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void runBackgroundBTService() {
-     if(!isMyServiceRunning(BluetoothBackgroundService.class))
-     {
-         BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService("BluetoothListenService");
-         Intent intent = new Intent(this,BluetoothBackgroundService.class);
-         bluetoothBackgroundService.startService(intent);
-     }
-    }
-
-    private void stopBackgroundBTService()
-    {
-        if(isMyServiceRunning(BluetoothBackgroundService.class))
-        {
-            BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService("BluetoothListenService");
-            Intent intent = new Intent(this,BluetoothBackgroundService.class);
-            bluetoothBackgroundService.stopService(intent);
+        String addressId = GlobalStatic.getUserAddressId();
+        if (!isMyServiceRunning(BluetoothBackgroundService.class) && addressId != null) {
+            Intent intent = new Intent(this, BluetoothBackgroundService.class);
+            intent.putExtra("USER_ADDRESS_ID", addressId);
+            getBaseContext().startService(intent);
         }
     }
+
+    private void stopBackgroundBTService() {
+        if (isMyServiceRunning(BluetoothBackgroundService.class)) {
+            Intent intent = new Intent(this, BluetoothBackgroundService.class);
+            getBaseContext().stopService(intent);
+        }
+    }
+
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

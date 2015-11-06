@@ -73,7 +73,7 @@ public class OfflineRFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
 
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.offline_devicesListView);
+        recyclerView = (RecyclerView) getActivity().findViewById(R.id.offline_devices_list_view);
 
         recyclerView.setLayoutManager(layoutManager);
     }
@@ -112,7 +112,6 @@ public class OfflineRFragment extends Fragment {
 
         super.onDestroy();
     }
-
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
