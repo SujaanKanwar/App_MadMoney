@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_recharge"
+            android:id="@+id/share_your_address"
             android:icon="@android:drawable/ic_menu_camera"
             android:title="Share You Address" />
         <item
-            android:id="@+id/nav_share"
+            android:id="@+id/nav_recharge"
             android:icon="@android:drawable/ic_menu_share"
             android:title="Recharge" />
         <item

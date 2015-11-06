@@ -112,24 +112,22 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-
         int id = menuItem.getItemId();
-
         Intent intent;
 
-        if (id == R.id.nav_recharge) {
+        switch (id)
+        {
+            case R.id.nav_recharge:
+                intent = new Intent(this, RechargeActivity.class);
 
-            intent = new Intent(this, RechargeActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_deposit_to_my_bank:
+                intent = new Intent(this, DepositInBankActivity.class);
 
-            startActivity(intent);
-
-        } else if (id == R.id.nav_deposit_to_my_bank) {
-
-            intent = new Intent(this, DepositInBankActivity.class);
-
-            startActivity(intent);
+                startActivity(intent);
+                break;
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         drawer.closeDrawer(GravityCompat.START);
@@ -241,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void initializeNavView() {
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
