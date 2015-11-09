@@ -56,7 +56,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.sujan.madmoney.MainActivity" />
         </activity>
-        <service android:enabled="true" android:name="com.example.sujan.madmoney.Services.BluetoothBackgroundService"></service>
+        <service android:enabled="true" android:name="com.example.sujan.madmoney.Services.BluetoothBackgroundService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

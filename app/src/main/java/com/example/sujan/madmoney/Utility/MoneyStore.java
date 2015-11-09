@@ -1,6 +1,7 @@
 package com.example.sujan.madmoney.Utility;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;

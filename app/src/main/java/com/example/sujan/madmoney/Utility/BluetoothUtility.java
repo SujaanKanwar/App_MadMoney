@@ -42,7 +42,7 @@ public class BluetoothUtility {
 
         this.device = device;
 
-        send("");
+        send("INDIA/MH/PUNE/Kharadi/0c7cc9dbe1fc4e54a4378a4e314c0958-10");
     }
 
     private void send(String madMoneyAddress) {

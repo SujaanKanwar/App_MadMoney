@@ -5,13 +5,16 @@ import android.util.Base64;
 
 import com.example.sujan.madmoney.AppData.APK;
 import com.example.sujan.madmoney.Resources.FileOperations;
+import com.example.sujan.madmoney.SharedConstants.SharedPrefConstants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,6 @@ import java.util.List;
  */
 public class APKHandler {
     private Context context;
-    private static String APK_FILE_NAME = "apkfile";
 
     public APKHandler(Context context) {
         this.context = context;
@@ -32,15 +34,22 @@ public class APKHandler {
         RSAPublicKey pubKey = null;
         List<APK> apkList = getAPKList();
         String strPublicKey = searchPublicAddressInAPKList(apkList, madMoneyAddress);
+        JSONObject jsonObject = getJsonObjectOfPublicKey(strPublicKey);
 
         try {
-            byte[] publicBytes = Base64.decode(strPublicKey, android.util.Base64.NO_WRAP);
+            BigInteger modulus = new BigInteger(1, Base64.decode(jsonObject.getString("MOD"), android.util.Base64.NO_WRAP));
+//            BigInteger modulus = new BigInteger("136947486221534240336809045161119007686413202148356254256008242257807880011806249839958280499381781685533336502272005150411472772080103145719579964919695844030008227347783921988114770268121788586944627895411363116342557282723471473724106379478285639503016646161100296022146684339017261036439728847129902363197");
+            BigInteger exponent = new BigInteger(Base64.decode(jsonObject.getString("EXP"), android.util.Base64.NO_WRAP));
 
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(modulus,exponent);
+
+//            byte[] publicBytes = Base64.decode(strPublicKey, android.util.Base64.NO_WRAP);
+//
+//            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
 
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
-            pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+            pubKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
 
         } catch (Exception e) {
         }
@@ -52,7 +61,7 @@ public class APKHandler {
         int i = 0, j = 1;
         String[] inputArray = madMoneyAddress.split("/");
         while (i < inputArray.length && j < apkList.size()) {
-            if (apkList.get(j).getValue().compareTo(inputArray[i]) == 0) {
+            if (apkList.get(j).getValue().equalsIgnoreCase(inputArray[i])) {
                 i++;
                 j++;
             } else {
@@ -66,7 +75,7 @@ public class APKHandler {
     }
 
     public List<APK> getAPKList() {
-        FileOperations fileOperations = new FileOperations(context, APK_FILE_NAME);
+        FileOperations fileOperations = new FileOperations(context, SharedPrefConstants.APK_FILE_NAME);
         String file = fileOperations.read();
         List<APK> apkList = new ArrayList<>();
         JSONArray apkArray = null;
@@ -90,5 +99,14 @@ public class APKHandler {
                 }
             }
         return apkList;
+    }
+
+    public JSONObject getJsonObjectOfPublicKey(String strPublicKey) {
+        JSONObject jObject = null;
+        try {
+            jObject = new JSONObject(strPublicKey);
+        }catch (JSONException e)
+        {}
+        return jObject;
     }
 }

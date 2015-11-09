@@ -52,10 +52,10 @@ public class RSAEncryptionDecryption {
 
     public static String bytesToString(byte[] b) {
 
-        return Base64.encodeToString(b, Base64.NO_WRAP);
+        return Base64.encodeToString(b, Base64.NO_PADDING|Base64.NO_WRAP);
     }
 
     public static byte[] stringToByte(String s) {
-        return Base64.decode(s, Base64.NO_WRAP);
+        return Base64.decode(s, Base64.NO_PADDING|Base64.NO_WRAP);
     }
 }

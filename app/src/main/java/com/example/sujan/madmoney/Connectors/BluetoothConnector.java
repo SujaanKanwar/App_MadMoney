@@ -66,7 +66,7 @@ public class BluetoothConnector {
             this.transType = transType;
             BluetoothSocket tmp = null;
             try {
-                tmp = device.createInsecureRfcommSocketToServiceRecord(MAD_MONEY_UUID);
+                tmp = device.createRfcommSocketToServiceRecord(MAD_MONEY_UUID);
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + "create() failed", e);
             }

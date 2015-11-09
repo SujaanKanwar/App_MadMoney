@@ -37,7 +37,7 @@ public class BluetoothBackgroundService extends IntentService {
     private String userAddressId;
 
     private static boolean RUNNING = true;
-    private static final long BLUETOOTH_CHECK_INTERVAL = 60 * 1000;
+    private static final long BLUETOOTH_CHECK_INTERVAL = 10 * 1000;
 
     //0. If bluetooth enable
     //1. start listening indefinitely
@@ -50,6 +50,12 @@ public class BluetoothBackgroundService extends IntentService {
     public BluetoothBackgroundService() {
 
         super("MadMoneyService");
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override
@@ -81,11 +87,11 @@ public class BluetoothBackgroundService extends IntentService {
             BluetoothServerSocket tmp = null;
 
             try {
-                tmp = btAdapter.listenUsingInsecureRfcommWithServiceRecord(CONNECTION_NAME, MAD_MONEY_UUID);
+                tmp = btAdapter.listenUsingRfcommWithServiceRecord(CONNECTION_NAME, MAD_MONEY_UUID);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Socket Type: listen() failed", e);
-                break;
+                continue;
             }
             mmServerSocket = tmp;
             while (btAdapter.isEnabled()) {
@@ -103,14 +109,15 @@ public class BluetoothBackgroundService extends IntentService {
     }
 
     private boolean validateRequest(Intent intent) {
-        Bundle bundle = intent.getExtras();
-
-        userAddressId = bundle.getString("USER_ADDRESS_ID", null);
-
-        if (userAddressId == null) {
-            Log.e(TAG, "USER_ADDRESS_ID is missing in the request");
-            return true;
-        }
+//        Bundle bundle = intent.getExtras();
+//
+//        userAddressId = bundle.getString("USER_ADDRESS_ID", null);
+//
+//        if (userAddressId == null) {
+//            Log.e(TAG, "USER_ADDRESS_ID is missing in the request");
+//            return true;
+//        }
+//        return false;
         return false;
     }
 
@@ -143,6 +150,10 @@ public class BluetoothBackgroundService extends IntentService {
                     }
                     message = message + new String(buffer, 0, bytesRead);
 
+                    inStream.close();
+
+                    socket.close();
+
                     receiveNotification(message, remoteDevice);
 
                     break;
@@ -159,7 +170,11 @@ public class BluetoothBackgroundService extends IntentService {
             sendMyAddress(remoteDevice);
 
             return;
-        } else {
+        } else if(receivedData.contains(Constants.MY_ADDRESS))
+        {
+
+        }
+        else {
             MoneyStore.storeBluetoothTransferMoney(getApplicationContext(), receivedData);
 
             showMoneyTransferNotification();
@@ -203,19 +218,23 @@ public class BluetoothBackgroundService extends IntentService {
         BluetoothSocket tmp = null;
         try {
 
-            tmp = remoteDevice.createInsecureRfcommSocketToServiceRecord(MAD_MONEY_UUID);
+            tmp = remoteDevice.createRfcommSocketToServiceRecord(MAD_MONEY_UUID);
         } catch (IOException e) {
             Log.e(TAG, "Socket Type: " + "create() failed", e);
         }
         socket = tmp;
         OutputStream outputStream = null;
         try {
+            socket.connect();
             outputStream = socket.getOutputStream();
         } catch (IOException e) {
             Log.e(TAG, "temp sockets not created", e);
         }
         try {
+
             outputStream.write(dataToTransfer);
+
+            outputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "Exception during write: transferData has been failed", e);
         }

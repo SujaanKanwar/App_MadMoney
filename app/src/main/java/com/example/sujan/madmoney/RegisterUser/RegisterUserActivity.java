@@ -150,6 +150,8 @@ public class RegisterUserActivity extends AppCompatActivity implements CreateUse
             fName = tempName[0];
             lName = tempName[tempName.length - 1];
         }
+        else
+         fName = userName;
 
         boolean cancel = false;
         View focusView = null;

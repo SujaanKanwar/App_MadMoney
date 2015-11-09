@@ -2,6 +2,8 @@ package com.example.sujan.madmoney.Utility;
 
 import android.content.Context;
 import android.security.KeyPairGeneratorSpec;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
 import java.math.BigInteger;
@@ -28,6 +30,7 @@ public class KeyPairGeneratorStore {
     /***
      * API: 19
      * References //http://nelenkov.blogspot.in/2013/08/credential-storage-enhancements-android-43.html
+     *
      * @param ctx : getActivity().getApplication().getApplicationContext();
      */
     public static void generateKeyPairAndStoreInKeyStore(Context ctx) {
@@ -36,40 +39,42 @@ public class KeyPairGeneratorStore {
             KeyStore keyStore = KeyStore.getInstance(androidKeyStore);
             keyStore.load(null);
             KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyAlias, null);
-          // if (keyEntry == null) {
-                Calendar notBefore = Calendar.getInstance();
-                Calendar notAfter = Calendar.getInstance();
+            Calendar notBefore = Calendar.getInstance();
+            Calendar notAfter = Calendar.getInstance();
 
-                notAfter.add(Calendar.YEAR, 10);
-                KeyPairGeneratorSpec spec = new KeyPairGeneratorSpec.Builder(ctx)
-                        .setAlias(keyAlias)
-                        .setSubject(
-                                new X500Principal(String.format("CN=%s, OU=%s", "alais",
-                                        ctx.getPackageName())))
-                        .setSerialNumber(BigInteger.ONE).setStartDate(notBefore.getTime())
-                        .setKeySize(1024)
-                        .setEndDate(notAfter.getTime()).build();
+            notAfter.add(Calendar.YEAR, 10);
 
-                KeyPairGenerator kpGenerator = KeyPairGenerator.getInstance(keyAlgorithm, androidKeyStore);
-                kpGenerator.initialize(spec);
-                KeyPair kp = kpGenerator.generateKeyPair();
-            //}
-        } catch (Exception e) {
+            KeyPairGeneratorSpec spec = new KeyPairGeneratorSpec.Builder(ctx)
+                    .setAlias(keyAlias)
+                    .setSubject(
+                            new X500Principal(String.format("CN=%s, OU=%s", "alais",
+                                    ctx.getPackageName())))
+                    .setSerialNumber(BigInteger.ONE).setStartDate(notBefore.getTime())
+                    .setKeySize(1024)
+                    .setEndDate(notAfter.getTime()).build();
+
+            KeyPairGenerator kpGenerator = KeyPairGenerator.getInstance(keyAlgorithm, androidKeyStore);
+            kpGenerator.initialize(spec);
+            KeyPair kp = kpGenerator.generateKeyPair();
+        }catch (Exception e) {
             //// TODO: 30/9/15 Add exception logging
             String exce = e.toString();
         }
     }
 
-    public static RSAPublicKey getPublicKey(){
+    public static RSAPublicKey getPublicKey() {
         try {
             KeyStore keyStore = KeyStore.getInstance(androidKeyStore);
             keyStore.load(null);
-            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyAlias, null);
-            return (RSAPublicKey)keyEntry.getCertificate().getPublicKey();
+            KeyStore.Entry entry = keyStore.getEntry(keyAlias, null);
+            if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+                return null;
+            }
+            return (RSAPublicKey) ((KeyStore.PrivateKeyEntry) entry).getCertificate().getPublicKey();
 
         } catch (Exception e) {
             String exce = e.toString();
-            return  null;
+            return null;
         }
     }
 
@@ -78,11 +83,14 @@ public class KeyPairGeneratorStore {
 
             KeyStore keyStore = KeyStore.getInstance(androidKeyStore);
             keyStore.load(null);
-            KeyStore.PrivateKeyEntry keyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyAlias, null);
-            return keyEntry.getPrivateKey();
+            KeyStore.Entry entry = keyStore.getEntry(keyAlias, null);
+            if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+                return null;
+            }
+            return ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
         } catch (Exception e) {
             String exce = e.toString();
-            return  null;
+            return null;
         }
     }
 
