@@ -18,10 +18,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
-
         <activity
-
             android:name=".MainActivity"
             android:configChanges="orientation"
             android:label="MadMoney"
@@ -56,8 +53,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.sujan.madmoney.MainActivity" />
         </activity>
-        <service android:enabled="true" android:name="com.example.sujan.madmoney.Services.BluetoothBackgroundService"
-            android:exported="false">
+
+        <service
+            android:name=".Services.BluetoothBackgroundService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".Services.UtilityService"
+            android:exported="false" >
         </service>
     </application>
 

@@ -100,8 +100,8 @@ public class BucketFragment extends Fragment {
                         ClipData.Item item = event.getClipData().getItemAt(0);
                         Integer amount = Integer.parseInt(item.getText().toString());
                         addAmountToBucket(amount);
-                        ((MainActivity) getActivity()).refreshMoney();
                         totalAmountTextView.setText("" + getBucketTotalAmount());
+                        ((MainActivity) getActivity()).refreshMoneyView();
                         //v.clearColorFilter();
                         v.invalidate();
                         return true;

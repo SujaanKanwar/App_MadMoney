@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.text.method.CharacterPickerDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
 import com.example.sujan.madmoney.AppData.Money;
@@ -23,6 +25,7 @@ import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Resources.DBMoneyStore;
 import com.example.sujan.madmoney.Requesters.FetchMoneyRequest;
 import com.example.sujan.madmoney.Connectors.FetchMoneyConnector;
+import com.example.sujan.madmoney.Services.UtilityService;
 import com.example.sujan.madmoney.SharedConstants.SharedPrefConstants;
 import com.example.sujan.madmoney.Utility.KeyPairGeneratorStore;
 import com.example.sujan.madmoney.Utility.MoneyStore;
@@ -59,14 +62,15 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
         Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
 
-        if (lastUpdatedDate == null || Math.abs(Date.parse(lastUpdatedDate) - currentLocalTime.getTime()) > 1000) {
+        if (lastUpdatedDate == null || Math.abs(Date.parse(lastUpdatedDate) - currentLocalTime.getTime()) > 2 * 60 * 1000) {
 
-            FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.INIT);
-
-            fetchMoneyConnector = new FetchMoneyConnector(this);
-
-            fetchMoneyConnector.service(request.toJSONString());
+            fetchMoneyFromServer();
         }
+        getAPKFileFromServer(this.getContext());
+    }
+
+    private void getAPKFileFromServer(Context context) {
+        UtilityService.getAPKFileFromServer(context);
     }
 
     @Override
@@ -76,8 +80,21 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
+
         refreshMoney();
+
+        bindRefreshEvent();
+    }
+
+    public void fetchMoneyFromServer() {
+
+        FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.INIT);
+
+        fetchMoneyConnector = new FetchMoneyConnector(this);
+
+        fetchMoneyConnector.service(request.toJSONString());
     }
 
     @Override
@@ -98,8 +115,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         }
         if (!isSuccess) {
             Log.e(TAG, status);
-        }
-        else {
+        } else {
             switch (status) {
                 case Constants.FetchMoneyResponse.EMPTY_AC:
                     break;
@@ -137,7 +153,6 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         }
     }
 
-
     public void refreshMoney() {
 
         DBMoneyStore dbMoneyStore = new DBMoneyStore(this.getActivity().getApplicationContext());
@@ -147,8 +162,23 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         GlobalStatic.setBucketCollection(null);
 
         refreshMoneyView();
+
+        refreshBucketView();
+
+        setTotalBalanceView();
     }
 
+
+    private void setTotalBalanceView() {
+        TextView totalBalance = (TextView) getActivity().findViewById(R.id.main_total_balance);
+        totalBalance.setText(GlobalStatic.getTotalBalance() + "");
+    }
+
+    private void refreshBucketView() {
+        final TextView totalAmountTextView = (TextView) getActivity().findViewById(R.id.totalMoney);
+        if (totalAmountTextView != null)
+            totalAmountTextView.setText("");
+    }
 
     private String decryptOTP(String encryptedOTP) {
 
@@ -201,7 +231,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
     private View generateViewForValue(int value, int totalNumber) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(160, 160);
 
-        lp.setMargins(20, 20, 20, 20);
+        lp.setMargins(20, 0, 20, 10);
 
         ImageButton moneyObject = new ImageButton(this.getActivity().getApplicationContext());
         moneyObject.setLayoutParams(lp);
@@ -248,6 +278,18 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
         setDragListener(moneyObject, value);
 
         return moneyObject;
+    }
+
+    private void bindRefreshEvent() {
+
+        ImageButton refreshWallet = (ImageButton) getActivity().findViewById(R.id.btn_refresh_wallet);
+
+        refreshWallet.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshMoney();
+            }
+        });
     }
 
 }

@@ -9,6 +9,7 @@ import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by sujan on 9/10/15.
@@ -41,7 +42,26 @@ public class GlobalStatic {
         return bucketCollection;
     }
 
-    public static void setBucketCollection(HashMap<Integer, List<Money>> bucketCollection) {GlobalStatic.bucketCollection = bucketCollection;
+    public static void setBucketCollection(HashMap<Integer, List<Money>> bucketCollection) {GlobalStatic.bucketCollection = bucketCollection;}
 
+    public static int getTotalBalance(){
+        int totalBalance =0;
+        if(bucketCollection != null)
+        {
+            Set<Integer> keySet = bucketCollection.keySet();
+            for (int key : keySet)
+            {
+                totalBalance += key * bucketCollection.get(key).size();
+            }
+        }
+        if(moneyCollection != null)
+        {
+            Set<Integer> keySet = moneyCollection.keySet();
+            for (int key : keySet)
+            {
+                totalBalance += key * moneyCollection.get(key).size();
+            }
+        }
+        return totalBalance;
     }
 }

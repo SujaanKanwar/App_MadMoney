@@ -1,89 +1,123 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.sujan.madmoney.Fragments.WalletFragment">
+    tools:context="com.example.sujan.madmoney.Fragments.WalletFragment"
+    android:orientation="vertical">
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:id="@+id/scrollViewLinearLayout">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right">
 
             <ImageButton
-                android:id="@+id/one"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/one" />
-
-            <ImageButton
-                android:id="@+id/two"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/two"
-                android:padding="10dp" />
-
-            <ImageButton
-                android:id="@+id/five"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/five" />
-
-            <ImageButton
-                android:id="@+id/ten"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/ten"
-                android:padding="10dp" />
-
-            <ImageButton
-                android:id="@+id/twenty"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/twenty" />
-
-            <ImageButton
-                android:id="@+id/fifty"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/fifty"
-                android:padding="10dp" />
-
-            <ImageButton
-                android:id="@+id/hundred"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/hundred" />
-
-            <ImageButton
-                android:id="@+id/fivehundred"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/fivehundred"
-                android:padding="10dp" />
-
-            <ImageButton
-                android:id="@+id/thousand"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/thousand"
-                android:padding="10dp" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_refresh_wallet"
+                android:src="@android:drawable/stat_notify_sync" />
         </LinearLayout>
-    </HorizontalScrollView>
+    </LinearLayout>
 
-</FrameLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:id="@+id/scrollViewLinearLayout">
+
+                <ImageButton
+                    android:id="@+id/one"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/one" />
+
+                <ImageButton
+                    android:id="@+id/two"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/two"
+                    android:padding="10dp" />
+
+                <ImageButton
+                    android:id="@+id/five"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/five" />
+
+                <ImageButton
+                    android:id="@+id/ten"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/ten"
+                    android:padding="10dp" />
+
+                <ImageButton
+                    android:id="@+id/twenty"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/twenty" />
+
+                <ImageButton
+                    android:id="@+id/fifty"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/fifty"
+                    android:padding="10dp" />
+
+                <ImageButton
+                    android:id="@+id/hundred"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/hundred" />
+
+                <ImageButton
+                    android:id="@+id/fivehundred"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/fivehundred"
+                    android:padding="10dp" />
+
+                <ImageButton
+                    android:id="@+id/thousand"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/thousand"
+                    android:padding="10dp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+</LinearLayout>

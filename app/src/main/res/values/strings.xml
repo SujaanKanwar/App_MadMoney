@@ -25,6 +25,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="Rs">\u20B9</string>
     <string name="error_emplty_name" >Enter Name</string>
     <string name="error_emplty_locality" >Enter Area Name</string>
     <string name="error_empty_password" >Enter Password</string>

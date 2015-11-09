@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public void refreshMoney() {
         if (walletFragment != null)
-            walletFragment.refreshMoneyView();
+            walletFragment.refreshMoney();
     }
 
 
@@ -213,10 +214,19 @@ public class MainActivity extends AppCompatActivity implements
 
         TextView userNameView = (TextView) findViewById(R.id.user_name);
         TextView userAddressView = (TextView) findViewById(R.id.address_id);
+        ImageButton fetchMoneyView = (ImageButton) findViewById(R.id.main_fetch_money);
 
         userNameView.setText(userName);
         userAddressView.setText("Copy Address");
         userAddressView.setTag(userAddress);
+
+        fetchMoneyView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(walletFragment !=null)
+                    walletFragment.fetchMoneyFromServer();
+            }
+        });
     }
 
     private void initializeMainFragments() {
@@ -271,5 +281,10 @@ public class MainActivity extends AppCompatActivity implements
             onlineRFragment = new OnlineRFragment();
 
         fragmentTransaction.replace(R.id.top_fragment_container, onlineRFragment).commit();
+    }
+
+    public void refreshMoneyView() {
+        if (walletFragment != null)
+            walletFragment.refreshMoneyView();
     }
 }

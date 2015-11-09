@@ -86,8 +86,7 @@ public class MoneyStore {
         return true;
     }
 
-    public static boolean restoreMoney(Context applicationContext)
-    {
+    public static boolean restoreMoney(Context applicationContext) {
         DBMoneyStore dbMoneyStore = new DBMoneyStore(applicationContext);
 
         dbMoneyStore.deleteAll();
@@ -96,13 +95,12 @@ public class MoneyStore {
 
         List<Money> moneyList = new ArrayList<>();
 
-        for (Integer key: hashMapMoneyList.keySet())
-            for(Money money : hashMapMoneyList.get(key))
+        for (Integer key : hashMapMoneyList.keySet())
+            for (Money money : hashMapMoneyList.get(key))
                 moneyList.add(money);
 
         return dbMoneyStore.insert(moneyList);
     }
-
 
     public static SecretKeySpec decryptAESKey(String encryptedKey) {
 

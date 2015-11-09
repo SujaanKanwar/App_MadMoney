@@ -118,7 +118,6 @@ public class RegisterUserActivity extends AppCompatActivity implements CreateUse
         showProgress(false);
     }
 
-
     private void storeUserData(String apkTreeArray, String userAddressId) {
 
         Context context = this.getApplicationContext();
@@ -149,9 +148,8 @@ public class RegisterUserActivity extends AppCompatActivity implements CreateUse
         if (tempName.length > 1) {
             fName = tempName[0];
             lName = tempName[tempName.length - 1];
-        }
-        else
-         fName = userName;
+        } else
+            fName = userName;
 
         boolean cancel = false;
         View focusView = null;

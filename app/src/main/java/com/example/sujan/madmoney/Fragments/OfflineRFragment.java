@@ -200,7 +200,7 @@ public class OfflineRFragment extends Fragment {
                 case Constants.MESSAGE_MONEY_SENT:
                     MoneyStore.restoreMoney(activity.getApplicationContext());
                     GlobalStatic.setBucketCollection(null);
-//                    ((MainActivity) getActivity()).refreshMoney();
+                   ((MainActivity) getActivity()).refreshMoney();
                     Toast.makeText(getActivity(), "Money have been transferred", Toast.LENGTH_LONG).show();
                     break;
                 case Constants.MESSAGE_RECEIVED:
