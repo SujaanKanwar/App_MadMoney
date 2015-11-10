@@ -15,7 +15,7 @@ import java.net.URL;
 public class UtilityConnector {
     private String APKFileFromServer;
     private String BASE_URL = "http://192.168.0.108/MadMoneyService.svc/";
-    private String GET_APK_FILE_URL = "getapkfile";
+    private String GET_APK_FILE_URL = "APKFile";
 
     public String getAPKFileFromServer() {
 

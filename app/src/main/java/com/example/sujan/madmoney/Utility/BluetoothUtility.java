@@ -2,7 +2,10 @@ package com.example.sujan.madmoney.Utility;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -12,6 +15,7 @@ import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.Cryptography.AESEncryptionDecryption;
 import com.example.sujan.madmoney.Cryptography.RSAEncryptionDecryption;
 import com.example.sujan.madmoney.Fragments.BucketFragment;
+import com.example.sujan.madmoney.SharedConstants.SharedBrodConstants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,8 +46,29 @@ public class BluetoothUtility {
 
         this.device = device;
 
-        send("INDIA/MH/PUNE/Kharadi/0c7cc9dbe1fc4e54a4378a4e314c0958-10");
+        send("");
+
+        context.registerReceiver(broadcastReceiver,intentFilter);
     }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(SharedBrodConstants.ACTION_ADDRESS_RECIEVED))
+            {
+                String deviceAddress = intent.getStringExtra(SharedBrodConstants.DEVICE_ADDRESS);
+                if(deviceAddress.equals(device.getAddress())) {
+                    String responseData = intent.getStringExtra(SharedBrodConstants.RESPONSE_DATA);
+                    String[] splitMessage = responseData.split(":");
+                    send(splitMessage[1]);
+                }
+                context.unregisterReceiver(broadcastReceiver);
+            }
+        }
+    };
+
+    IntentFilter intentFilter = new IntentFilter(SharedBrodConstants.ACTION_ADDRESS_RECIEVED);
 
     private void send(String madMoneyAddress) {
         if (madMoneyAddress == "") {

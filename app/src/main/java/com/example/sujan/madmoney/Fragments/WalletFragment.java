@@ -66,7 +66,7 @@ public class WalletFragment extends Fragment implements FetchMoneyConnector.OnTa
 
             fetchMoneyFromServer();
         }
-        getAPKFileFromServer(this.getContext());
+        getAPKFileFromServer(getActivity().getApplicationContext());
     }
 
     private void getAPKFileFromServer(Context context) {

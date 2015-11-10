@@ -159,9 +159,8 @@ public class MainActivity extends AppCompatActivity implements
     private void runBackgroundBTService() {
         String addressId = GlobalStatic.getUserAddressId();
         if (!isMyServiceRunning(BluetoothBackgroundService.class) && addressId != null) {
-            Intent intent = new Intent(this, BluetoothBackgroundService.class);
-            intent.putExtra("USER_ADDRESS_ID", addressId);
-            startService(intent);
+            BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService();
+            bluetoothBackgroundService.startBTBackgroundService(getApplicationContext(), addressId);
         }
     }
 
