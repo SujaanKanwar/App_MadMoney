@@ -7,12 +7,13 @@ public class APK {
     private String publicKey;
     private int siblingIndex;
     private String value;
-    public APK(String publicKey,int siblingIndex, String value)
-    {
+
+    public APK(String publicKey, int siblingIndex, String value) {
         this.publicKey = publicKey;
         this.siblingIndex = siblingIndex;
         this.value = value;
     }
+
     public String getPublicKey() {
         return publicKey;
     }

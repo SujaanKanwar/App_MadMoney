@@ -24,8 +24,7 @@ import javax.crypto.NoSuchPaddingException;
 public class RSAEncryptionDecryption {
 
 
-    public static String Encrypt (byte[] data, RSAPublicKey publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
-    {
+    public static String Encrypt(byte[] data, RSAPublicKey publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -36,11 +35,10 @@ public class RSAEncryptionDecryption {
 
     }
 
-    public static byte[] Decrypt (String result, PrivateKey privateKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException
-    {
+    public static byte[] Decrypt(String result, PrivateKey privateKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] resultDecoded = stringToByte(result);
 
-        Cipher cipher=Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
@@ -52,10 +50,10 @@ public class RSAEncryptionDecryption {
 
     public static String bytesToString(byte[] b) {
 
-        return Base64.encodeToString(b, Base64.NO_PADDING|Base64.NO_WRAP);
+        return Base64.encodeToString(b, Base64.NO_PADDING);
     }
 
     public static byte[] stringToByte(String s) {
-        return Base64.decode(s, Base64.NO_PADDING|Base64.NO_WRAP);
+        return Base64.decode(s, Base64.NO_PADDING);
     }
 }

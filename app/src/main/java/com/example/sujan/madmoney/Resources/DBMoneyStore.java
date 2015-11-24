@@ -50,18 +50,16 @@ public class DBMoneyStore extends SQLiteOpenHelper {
                 database.insert(TABLE_NAME, null, values);
             }
             database.close();
-        }
-        catch (Exception e){
-            Log.e("DB",e.getMessage());
+        } catch (Exception e) {
+            Log.e("DB", e.getMessage());
             return false;
         }
         return true;
     }
 
-    public void deleteAll()
-    {
+    public void deleteAll() {
         SQLiteDatabase database = this.getWritableDatabase();
-        database.execSQL("delete from "+ TABLE_NAME);
+        database.execSQL("delete from " + TABLE_NAME);
         database.close();
     }
 

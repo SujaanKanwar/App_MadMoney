@@ -122,7 +122,15 @@ public class BluetoothConnector {
             Log.e(TAG, "temp sockets not created", e);
         }
         try {
-            outputStream.write(dataToTransfer);
+            outputStream.flush();
+            Log.e("DataToTransfer", dataToTransfer.length + "");
+
+//            BTMessage packet = new BTMessage(dataToTransfer.length, dataToTransfer);
+
+
+            outputStream.write(dataToTransfer, 0, dataToTransfer.length);
+//            outputStream.close();
+//            socket.close();
         } catch (IOException e) {
             Log.e(TAG, "Exception during write: transferData has been failed", e);
         }

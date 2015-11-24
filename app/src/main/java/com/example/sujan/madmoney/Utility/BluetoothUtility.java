@@ -48,17 +48,16 @@ public class BluetoothUtility {
 
         send("");
 
-        context.registerReceiver(broadcastReceiver,intentFilter);
+        context.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(action.equals(SharedBrodConstants.ACTION_ADDRESS_RECIEVED))
-            {
+            if (action.equals(SharedBrodConstants.ACTION_ADDRESS_RECIEVED)) {
                 String deviceAddress = intent.getStringExtra(SharedBrodConstants.DEVICE_ADDRESS);
-                if(deviceAddress.equals(device.getAddress())) {
+                if (deviceAddress.equals(device.getAddress())) {
                     String responseData = intent.getStringExtra(SharedBrodConstants.RESPONSE_DATA);
                     String[] splitMessage = responseData.split(":");
                     send(splitMessage[1]);
@@ -93,8 +92,7 @@ public class BluetoothUtility {
                 data.put("ENCRYPTED_KEY", encryptedSynchronousKey);
                 data.put("MONEY", encryptMoney);
 
-
-                bluetoothConnector.transferData(device, data.toString().getBytes(), Constants.TRANS_TYPE_MONEY);
+                bluetoothConnector.transferData(device, data.toString().getBytes("UTF8"), Constants.TRANS_TYPE_MONEY);
 
             } catch (Exception e) {
                 Log.e("Encryption Failure", e.getMessage());
