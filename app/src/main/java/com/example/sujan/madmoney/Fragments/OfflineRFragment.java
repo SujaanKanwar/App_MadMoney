@@ -22,6 +22,7 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
@@ -29,6 +30,7 @@ import com.example.sujan.madmoney.AppData.MyRecyclerAdaptor;
 import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.MainActivity;
 import com.example.sujan.madmoney.R;
+import com.example.sujan.madmoney.Utility.BTMoneyTransService;
 import com.example.sujan.madmoney.Utility.BluetoothUtility;
 import com.example.sujan.madmoney.Utility.MoneyStore;
 
@@ -42,7 +44,6 @@ public class OfflineRFragment extends Fragment {
     private List<BluetoothDevice> bluetoothDeviceList;
     private MyRecyclerAdaptor myRecyclerAdaptor;
     private RecyclerView recyclerView;
-    private BluetoothUtility bluetoothUtility = null;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -83,7 +84,7 @@ public class OfflineRFragment extends Fragment {
 
         super.onStart();
 
-        if(btAdapter == null)
+        if (btAdapter == null)
             onDestroy();
         else {
 
@@ -100,9 +101,9 @@ public class OfflineRFragment extends Fragment {
     @Override
     public void onDestroy() {
         if (btAdapter != null && btAdapter.isEnabled()) {
-            if(btAdapter.isDiscovering())
+            if (btAdapter.isDiscovering())
                 btAdapter.cancelDiscovery();
-            btAdapter.disable();
+//            btAdapter.disable();
         }
 
         try {
@@ -124,16 +125,12 @@ public class OfflineRFragment extends Fragment {
 
                 else {
                     Toast.makeText(getActivity(), "Not able to enable the bluetooth", Toast.LENGTH_SHORT).show();
-
-//                    getActivity().getFragmentManager().beginTransaction().remove(this).commit();
                 }
         }
     }
 
 
     private void initialise() {
-
-        bluetoothUtility = new BluetoothUtility(getActivity().getApplicationContext(), btMessageHandler, btAdapter);
 
         getAndDisplayPairedOrNewBTDevices();
 
@@ -166,10 +163,9 @@ public class OfflineRFragment extends Fragment {
 
     private void doDiscovery() {
 
-        if (btAdapter.isDiscovering()) {
-
+        if (btAdapter.isDiscovering())
             btAdapter.cancelDiscovery();
-        }
+
         btAdapter.startDiscovery();
     }
 
@@ -198,13 +194,10 @@ public class OfflineRFragment extends Fragment {
             Activity activity = getActivity();
             switch (msg.what) {
                 case Constants.MESSAGE_MONEY_SENT:
-                    MoneyStore.restoreMoney(activity.getApplicationContext());
-                    GlobalStatic.setBucketCollection(null);
-                   ((MainActivity) getActivity()).refreshMoney();
+//                    MoneyStore.restoreMoney(activity.getApplicationContext());
+//                    GlobalStatic.setBucketCollection(null);
+                    ((MainActivity) getActivity()).refreshMoney();
                     Toast.makeText(getActivity(), "Money have been transferred", Toast.LENGTH_LONG).show();
-                    break;
-                case Constants.MESSAGE_RECEIVED:
-                    Toast.makeText(getActivity(), "Money have been received", Toast.LENGTH_LONG).show();
                     break;
                 case Constants.CONNECTION_FAILED:
                     Toast.makeText(getActivity(), "Failure while transaction", Toast.LENGTH_LONG).show();
@@ -248,15 +241,19 @@ public class OfflineRFragment extends Fragment {
                     if (item.getText().toString().compareTo(Constants.BUCKET_TRANSFER) != 0) {
                         Integer amount = Integer.parseInt(item.getText().toString());
                         BucketFragment.addAmountToBucket(amount);
-                        ((MainActivity) getActivity()).refreshMoney();
                     }
                     String deviceAddress = (String) v.getTag();
 
                     BluetoothDevice device = btAdapter.getRemoteDevice(deviceAddress);
 
-                    if (GlobalStatic.getBucketCollection() != null)
-                        bluetoothUtility.sendMoney(device);
+                    if (GlobalStatic.getBucketCollection() != null) {
+                        BTMoneyTransService.sendMoney(getActivity().getApplicationContext(), device);
+                        TextView totalAmountTextView = (TextView) getActivity().findViewById(R.id.totalMoney);
+                        totalAmountTextView.setText("0");
+                    }
+//                        bluetoothUtility.sendMoney(device);
 
+//                    ((MainActivity) getActivity()).refreshMoney();
                     v.invalidate();
                     return true;
 

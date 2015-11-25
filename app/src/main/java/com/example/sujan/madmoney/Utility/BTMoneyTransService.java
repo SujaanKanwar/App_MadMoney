@@ -1,50 +1,89 @@
 package com.example.sujan.madmoney.Utility;
 
+import android.app.IntentService;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.sujan.madmoney.AppData.GlobalStatic;
+import com.example.sujan.madmoney.AppData.Money;
 import com.example.sujan.madmoney.Connectors.BluetoothConnector;
 import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.Cryptography.AESEncryptionDecryption;
 import com.example.sujan.madmoney.Cryptography.RSAEncryptionDecryption;
 import com.example.sujan.madmoney.Fragments.BucketFragment;
+import com.example.sujan.madmoney.MainActivity;
 import com.example.sujan.madmoney.SharedConstants.SharedBrodConstants;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * Created by sujan on 13/10/15.
- */
-public class BluetoothUtility {
+public class BTMoneyTransService extends IntentService {
+
     private BluetoothConnector bluetoothConnector = null;
-    private Handler receiverHandler;
+    Handler mHandler;
     private Context context;
     private BluetoothDevice device;
 
-    public BluetoothUtility(Context context, Handler btMessageHandler, BluetoothAdapter btAdapter) {
+    private static final String ACTION_SEND_MONEY = "com.example.sujan.madmoney.Utility.action.SEND_MONEY";
 
-        this.context = context;
+    private static final String EXTRA_PARAM1 = "com.example.sujan.madmoney.Utility.extra.PARAM1";
 
-        this.receiverHandler = btMessageHandler;
-
-        bluetoothConnector = new BluetoothConnector(thisHandler);
+    public static void sendMoney(Context context, BluetoothDevice device) {
+        Intent intent = new Intent(context, BTMoneyTransService.class);
+        intent.setAction(ACTION_SEND_MONEY);
+        intent.putExtra(EXTRA_PARAM1, device);
+        context.startService(intent);
     }
 
-    public void sendMoney(BluetoothDevice device) {
+    public BTMoneyTransService()
+    {
+        super("BTMoneyTransService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mHandler = new Handler();
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (ACTION_SEND_MONEY.equals(action)) {
+                final BluetoothDevice param1 = intent.getParcelableExtra(EXTRA_PARAM1);
+                sendMoney(param1);
+            }
+        }
+    }
+
+
+    private void sendMoney(BluetoothDevice device) {
 
         this.device = device;
+
+        this.context = getApplicationContext();
+
+        if (GlobalStatic.getBucketCollection() == null)
+            return;
+
+        GlobalStatic.setTransCollection(GlobalStatic.getBucketCollection());
+
+        GlobalStatic.setBucketCollection(null);
 
         send("");
 
@@ -70,6 +109,8 @@ public class BluetoothUtility {
     IntentFilter intentFilter = new IntentFilter(SharedBrodConstants.ACTION_ADDRESS_RECIEVED);
 
     private void send(String madMoneyAddress) {
+        bluetoothConnector = new BluetoothConnector(thisHandler);
+
         if (madMoneyAddress == "") {
             bluetoothConnector.transferData(device, Constants.TELL_ME_YOUR_ADDRESS.getBytes(), Constants.TRANS_TYPE_MSG);
         } else {
@@ -79,7 +120,7 @@ public class BluetoothUtility {
 
             RSAPublicKey rsaPublicKey = apkHandler.getPublicKey(madMoneyAddress);
 
-            JSONArray money = BucketFragment.getJSONMoneyToTransferFromBucket();
+            JSONArray money = getJSONMoneyToTransferFromBucket();
             try {
 
                 SecretKeySpec synchronousKey = AESEncryptionDecryption.generateKey();
@@ -100,26 +141,46 @@ public class BluetoothUtility {
         }
     }
 
+
     private final Handler thisHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Message newMsg;
 
             switch (msg.what) {
 
                 case Constants.MESSAGE_MONEY_SENT:
-                    newMsg = receiverHandler.obtainMessage(Constants.MESSAGE_MONEY_SENT);
+                    MoneyStore.deleteMoneyList(context, GlobalStatic.getTransCollection());
 
-                    receiverHandler.sendMessage(newMsg);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(BTMoneyTransService.this, "Money have been transferred", Toast.LENGTH_LONG).show();
+                        }
+                    });
                     break;
-
                 case Constants.CONNECTION_FAILED:
-
-                    newMsg = receiverHandler.obtainMessage(Constants.CONNECTION_FAILED);
-
-                    receiverHandler.sendMessage(newMsg);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(BTMoneyTransService.this, "Failure while transaction", Toast.LENGTH_LONG).show();
+                        }
+                    });
                     break;
             }
+
         }
     };
+
+    public static JSONArray getJSONMoneyToTransferFromBucket() {
+        JSONArray jsonArray = new JSONArray();
+        HashMap<Integer, List<Money>> bucketMoney = GlobalStatic.getTransCollection();
+        if (bucketMoney == null)
+            return null;
+        for (Integer key : bucketMoney.keySet()) {
+            for (Money money : bucketMoney.get(key)) {
+                jsonArray.put(money.toJSON());
+            }
+        }
+        return jsonArray;
+    }
 }

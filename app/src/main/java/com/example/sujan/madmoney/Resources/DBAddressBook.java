@@ -93,12 +93,11 @@ public class DBAddressBook extends SQLiteOpenHelper {
         return list;
     }
 
-    public void deleteBTAddress(int id)
-    {
+    public void deleteBTAddress(int id) {
         SQLiteDatabase database = this.getWritableDatabase();
         String table = BT_ADDRESS_TABLE_NAME;
         String whereClause = "Id" + "=?";
-        String[] whereArgs = new String[] { String.valueOf(id) };
+        String[] whereArgs = new String[]{String.valueOf(id)};
         database.delete(table, whereClause, whereArgs);
     }
 
@@ -163,12 +162,11 @@ public class DBAddressBook extends SQLiteOpenHelper {
         return list;
     }
 
-    public void deleteUserAddress(int id)
-    {
+    public void deleteUserAddress(int id) {
         SQLiteDatabase database = this.getWritableDatabase();
         String table = USER_ADDRESS_TABLE_NAME;
         String whereClause = "Id" + "=?";
-        String[] whereArgs = new String[] { String.valueOf(id) };
+        String[] whereArgs = new String[]{String.valueOf(id)};
         database.delete(table, whereClause, whereArgs);
     }
 

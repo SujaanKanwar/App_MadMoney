@@ -91,4 +91,15 @@ public class DBMoneyStore extends SQLiteOpenHelper {
         database.close();
         return moneyCollection;
     }
+
+    public void deleteMoneyList(HashMap<Integer, List<Money>> moneyList) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        for (List<Money> list : moneyList.values()) {
+            for (Money money : list) {
+                database.execSQL("delete from "+TABLE_NAME+" where Id='"+money.getId()+"'");
+            }
+        }
+        database.close();
+    }
 }

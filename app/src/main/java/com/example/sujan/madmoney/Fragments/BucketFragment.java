@@ -147,7 +147,6 @@ public class BucketFragment extends Fragment {
         if (bucketCollection == null) {
             bucketCollection = new HashMap<Integer, List<Money>>();
         }
-
         //add to bucket
         if (!bucketCollection.containsKey(amount)) {
             List<Money> list = new ArrayList<Money>();
@@ -156,7 +155,6 @@ public class BucketFragment extends Fragment {
         } else {
             bucketCollection.get(amount).add(money);
         }
-
         //remove from collection
         moneyList.remove(0);
         if (moneyList.size() == 0)
@@ -169,7 +167,7 @@ public class BucketFragment extends Fragment {
     public static JSONArray getJSONMoneyToTransferFromBucket() {
         JSONArray jsonArray = new JSONArray();
         HashMap<Integer, List<Money>> bucketMoney = GlobalStatic.getBucketCollection();
-        if(bucketMoney == null)
+        if (bucketMoney == null)
             return null;
         for (Integer key : bucketMoney.keySet()) {
             for (Money money : bucketMoney.get(key)) {

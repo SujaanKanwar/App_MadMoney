@@ -102,6 +102,13 @@ public class MoneyStore {
         return dbMoneyStore.insert(moneyList);
     }
 
+    public static boolean deleteMoneyList(Context applicationContext, HashMap<Integer, List<Money>> collection)
+    {
+        DBMoneyStore dbMoneyStore = new DBMoneyStore(applicationContext);
+        dbMoneyStore.deleteMoneyList(collection);
+        return true;
+    }
+
     public static SecretKeySpec decryptAESKey(String encryptedKey) {
 
         SecretKeySpec secretKeySpec = null;

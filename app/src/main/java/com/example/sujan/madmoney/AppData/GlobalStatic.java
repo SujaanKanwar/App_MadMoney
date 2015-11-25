@@ -20,6 +20,7 @@ public class GlobalStatic {
 
     private static HashMap<Integer, List<Money>> moneyCollection;
     private static HashMap<Integer, List<Money>> bucketCollection;
+    private static HashMap<Integer, List<Money>> transCollection;
     private static List<BluetoothDevice> bluetoothDeviceList;
     private static String userAddressId;
 
@@ -79,5 +80,13 @@ public class GlobalStatic {
             }
         }
         return totalBalance;
+    }
+
+    public static HashMap<Integer, List<Money>> getTransCollection() {
+        return transCollection;
+    }
+
+    public static void setTransCollection(HashMap<Integer, List<Money>> transCollection) {
+        GlobalStatic.transCollection = transCollection;
     }
 }

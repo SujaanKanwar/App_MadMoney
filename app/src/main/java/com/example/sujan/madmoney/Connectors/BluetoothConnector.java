@@ -34,10 +34,10 @@ public class BluetoothConnector {
         return state;
     }
 
-    public BluetoothConnector(Handler handler, BluetoothAdapter btAdapter) {
+    public BluetoothConnector(Handler handler) {
         setState(STATE_NONE);
 
-        this.btAdapter = btAdapter;
+        this.btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         this.handler = handler;
     }
@@ -66,7 +66,7 @@ public class BluetoothConnector {
             this.transType = transType;
             BluetoothSocket tmp = null;
             try {
-                tmp = device.createRfcommSocketToServiceRecord(MAD_MONEY_UUID);
+                tmp = device.createInsecureRfcommSocketToServiceRecord(MAD_MONEY_UUID);
             } catch (IOException e) {
                 Log.e(TAG, "Socket Type: " + "create() failed", e);
             }
@@ -81,6 +81,7 @@ public class BluetoothConnector {
             try {
                 socket.connect();
             } catch (IOException e) {
+                Log.e(TAG, "Socket,connect failed", e);
                 try {
                     socket.close();
                 } catch (IOException e2) {
@@ -123,10 +124,6 @@ public class BluetoothConnector {
         }
         try {
             outputStream.flush();
-            Log.e("DataToTransfer", dataToTransfer.length + "");
-
-//            BTMessage packet = new BTMessage(dataToTransfer.length, dataToTransfer);
-
 
             outputStream.write(dataToTransfer, 0, dataToTransfer.length);
 //            outputStream.close();
