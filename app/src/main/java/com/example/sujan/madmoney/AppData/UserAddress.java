@@ -1,4 +1,4 @@
-package com.example.sujan.madmoney.Resources;
+package com.example.sujan.madmoney.AppData;
 
 /**
  * Created by sujan on 5/11/15.
@@ -13,5 +13,21 @@ public class UserAddress {
         this.userName = userName;
         this.userAddressId = userAddressId;
         this.phoneNo = phoneNo;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getUserAddressId() {
+        return userAddressId;
+    }
+
+    public String getPhoneNo() {
+        return phoneNo;
     }
 }

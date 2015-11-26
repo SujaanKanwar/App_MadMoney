@@ -22,6 +22,7 @@ public class GlobalStatic {
     private static HashMap<Integer, List<Money>> bucketCollection;
     private static HashMap<Integer, List<Money>> transCollection;
     private static List<BluetoothDevice> bluetoothDeviceList;
+    private static List<UserAddress> onlineUserAddressList;
     private static String userAddressId;
 
     private GlobalStatic() {
@@ -88,5 +89,13 @@ public class GlobalStatic {
 
     public static void setTransCollection(HashMap<Integer, List<Money>> transCollection) {
         GlobalStatic.transCollection = transCollection;
+    }
+
+    public static List<UserAddress> getOnlineUserAddressList() {
+        return onlineUserAddressList;
+    }
+
+    public static void setOnlineUserAddressList(List<UserAddress> onlineUserAddressList) {
+        GlobalStatic.onlineUserAddressList = onlineUserAddressList;
     }
 }

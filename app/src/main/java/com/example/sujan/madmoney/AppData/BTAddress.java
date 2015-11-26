@@ -1,4 +1,4 @@
-package com.example.sujan.madmoney.Resources;
+package com.example.sujan.madmoney.AppData;
 
 /**
  * Created by sujan on 5/11/15.

@@ -7,10 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.sujan.madmoney.AppData.Money;
+import com.example.sujan.madmoney.AppData.BTAddress;
+import com.example.sujan.madmoney.AppData.UserAddress;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

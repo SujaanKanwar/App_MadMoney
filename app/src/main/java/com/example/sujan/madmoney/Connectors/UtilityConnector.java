@@ -2,6 +2,8 @@ package com.example.sujan.madmoney.Connectors;
 
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +18,7 @@ public class UtilityConnector {
     private String APKFileFromServer;
     private String BASE_URL = "http://192.168.0.108/MadMoneyService.svc/";
     private String GET_APK_FILE_URL = "APKFile";
+    private String TRANS_MONEY = "DepositMoneyToAccount";
 
     public String getAPKFileFromServer() {
 
@@ -58,5 +61,13 @@ public class UtilityConnector {
             }
         }
         return outputStr;
+    }
+
+    public boolean transferMoney(JSONObject data) {
+        String url = BASE_URL + TRANS_MONEY;
+
+        String response = post(url, data.toString());
+
+        return response.equals("true");
     }
 }

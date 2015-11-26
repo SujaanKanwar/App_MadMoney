@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:id="@+id/imageButton2"
+        android:id="@+id/online_add_address_btn"
         android:src="@android:drawable/ic_menu_add"
         android:layout_gravity="center_vertical" />
 

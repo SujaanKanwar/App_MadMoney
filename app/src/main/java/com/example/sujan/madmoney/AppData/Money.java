@@ -2,8 +2,12 @@ package com.example.sujan.madmoney.AppData;
 
 import com.example.sujan.madmoney.Connectors.Constants;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by sujan on 6/10/15.
@@ -62,5 +66,18 @@ public class Money implements Comparable<Money> {
         }
 
         return jsonObject;
+    }
+
+    public static JSONArray getJSONMoneyToTransferFromBucket() {
+        JSONArray jsonArray = new JSONArray();
+        HashMap<Integer, List<Money>> bucketMoney = GlobalStatic.getTransCollection();
+        if (bucketMoney == null)
+            return null;
+        for (Integer key : bucketMoney.keySet()) {
+            for (Money money : bucketMoney.get(key)) {
+                jsonArray.put(money.toJSON());
+            }
+        }
+        return jsonArray;
     }
 }

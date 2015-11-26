@@ -1,15 +1,31 @@
 package com.example.sujan.madmoney.Fragments;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
+import com.example.sujan.madmoney.AppData.GlobalStatic;
+import com.example.sujan.madmoney.AppData.OnlineRecyclerAdaptor;
+import com.example.sujan.madmoney.AppData.UserAddress;
+import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.R;
+import com.example.sujan.madmoney.Resources.DBAddressBook;
+import com.example.sujan.madmoney.Services.UtilityService;
+import com.example.sujan.madmoney.Utility.BTMoneyTransService;
+
+import java.util.List;
 
 public class OnlineRFragment extends Fragment {
 
@@ -33,9 +49,97 @@ public class OnlineRFragment extends Fragment {
         recyclerView = (RecyclerView) getActivity().findViewById(R.id.online_devicesListView);
 
         recyclerView.setLayoutManager(layoutManager);
+
+        ImageButton addNewAddressButton = (ImageButton) getActivity().findViewById(R.id.online_add_address_btn);
+
+        addNewAddressButton.setOnClickListener(new onAddNewAddressListener(getActivity().getApplicationContext(), getFragmentManager()));
     }
-    //1. Recycler view will show all the address book from DB
-    //2. Add button will add new device with UserAddressId(Without BT device address)
-    //3. Offline recycler view will show all the address having BT device address
-    //4. Unique primary Id should be based upon user address id.
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initialise();
+    }
+
+    private void initialise() {
+        getAndSetAddressOnlineAddressList();
+
+        OnlineRecyclerAdaptor adaptor = new OnlineRecyclerAdaptor(new OnDragListener());
+
+        recyclerView.setAdapter(adaptor);
+    }
+
+    private void getAndSetAddressOnlineAddressList() {
+        DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
+        List<UserAddress> addressList = dbAddressBook.selectUserAddress();
+        GlobalStatic.setOnlineUserAddressList(addressList);
+    }
+
+    private class OnDragListener implements View.OnDragListener {
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            final int action = event.getAction();
+
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    if (event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+
+                        v.setBackgroundColor(Color.BLUE);
+
+                        v.invalidate();
+                        return true;
+                    }
+                    return false;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    //v.setColorFilter(Color.GREEN);
+                    v.invalidate();
+                    return true;
+
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    return true;
+
+                case DragEvent.ACTION_DRAG_EXITED:
+                    //v.setColorFilter(Color.BLUE);
+                    v.invalidate();
+                    return true;
+
+                case DragEvent.ACTION_DROP:
+                    ClipData.Item item = event.getClipData().getItemAt(0);
+                    v.setBackgroundColor(Color.RED);
+                    if (item.getText().toString().compareTo(Constants.BUCKET_TRANSFER) != 0) {
+                        Integer amount = Integer.parseInt(item.getText().toString());
+                        BucketFragment.addAmountToBucket(amount);
+                    }
+                    String id = (String) v.getTag();
+                    TextView totalAmountTextView = (TextView) getActivity().findViewById(R.id.totalMoney);
+                    totalAmountTextView.setText(" ");
+                    String userAddressId = getUserAddressFromAddressBook(id);
+
+                    if (userAddressId != null)
+                        UtilityService.sendMoney(getActivity().getApplicationContext(), userAddressId);
+
+                    v.invalidate();
+                    return true;
+
+                case DragEvent.ACTION_DRAG_ENDED:
+                    //v.clearColorFilter();
+                    v.invalidate();
+                    return true;
+
+                default:
+                    Log.e("DragDrop Example", "Unknown action type received by OnDragListener.");
+                    break;
+            }
+            return false;
+        }
+    }
+
+    private String getUserAddressFromAddressBook(String id) {
+        List<UserAddress> addressList = GlobalStatic.getOnlineUserAddressList();
+        for (UserAddress temp : addressList) {
+            if (temp.getId().equals(id))
+                return temp.getUserAddressId();
+        }
+        return null;
+    }
 }

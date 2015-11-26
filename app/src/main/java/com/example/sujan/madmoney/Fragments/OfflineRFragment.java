@@ -26,13 +26,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sujan.madmoney.AppData.GlobalStatic;
-import com.example.sujan.madmoney.AppData.MyRecyclerAdaptor;
+import com.example.sujan.madmoney.AppData.OfflineRecyclerAdaptor;
 import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.MainActivity;
 import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Utility.BTMoneyTransService;
-import com.example.sujan.madmoney.Utility.BluetoothUtility;
-import com.example.sujan.madmoney.Utility.MoneyStore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +40,7 @@ public class OfflineRFragment extends Fragment {
 
     private BluetoothAdapter btAdapter;
     private List<BluetoothDevice> bluetoothDeviceList;
-    private MyRecyclerAdaptor myRecyclerAdaptor;
+    private OfflineRecyclerAdaptor offlineRecyclerAdaptor;
     private RecyclerView recyclerView;
 
     private static final int REQUEST_ENABLE_BT = 1;
@@ -134,9 +132,9 @@ public class OfflineRFragment extends Fragment {
 
         getAndDisplayPairedOrNewBTDevices();
 
-        myRecyclerAdaptor = new MyRecyclerAdaptor(new OnDragListener());
+        offlineRecyclerAdaptor = new OfflineRecyclerAdaptor(new OnDragListener());
 
-        recyclerView.setAdapter(myRecyclerAdaptor);
+        recyclerView.setAdapter(offlineRecyclerAdaptor);
 
         getActivity().registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
@@ -181,7 +179,7 @@ public class OfflineRFragment extends Fragment {
 
                 GlobalStatic.setBluetoothDeviceList(bluetoothDeviceList);
 
-                myRecyclerAdaptor.notifyItemInserted(bluetoothDeviceList.size() - 1);
+                offlineRecyclerAdaptor.notifyItemInserted(bluetoothDeviceList.size() - 1);
 
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())) {
             }
@@ -249,7 +247,7 @@ public class OfflineRFragment extends Fragment {
                     if (GlobalStatic.getBucketCollection() != null) {
                         BTMoneyTransService.sendMoney(getActivity().getApplicationContext(), device);
                         TextView totalAmountTextView = (TextView) getActivity().findViewById(R.id.totalMoney);
-                        totalAmountTextView.setText("0");
+                        totalAmountTextView.setText(" ");
                     }
 //                        bluetoothUtility.sendMoney(device);
 

@@ -1,18 +1,12 @@
 package com.example.sujan.madmoney.AppData;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.ClipData;
-import android.content.ClipDescription;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.sujan.madmoney.R;
 
@@ -21,12 +15,12 @@ import java.util.List;
 /**
  * Created by sujan on 10/10/15.
  */
-public class MyRecyclerAdaptor extends RecyclerView.Adapter<MyRecyclerAdaptor.ViewHolder> {
+public class OfflineRecyclerAdaptor extends RecyclerView.Adapter<OfflineRecyclerAdaptor.ViewHolder> {
 
     private List<BluetoothDevice> bluetoothDeviceList = GlobalStatic.getBluetoothDeviceList();
     private View.OnDragListener onDragListener;
 
-    public MyRecyclerAdaptor(View.OnDragListener onDragListener) {
+    public OfflineRecyclerAdaptor(View.OnDragListener onDragListener) {
         this.onDragListener = onDragListener;
     }
 

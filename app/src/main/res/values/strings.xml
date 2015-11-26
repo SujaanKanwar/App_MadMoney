@@ -33,5 +33,7 @@
     <string name="erro_password_mismatch" >Password Mismatch</string>
     <string name="title_activity_recharge">RechargeActivity</string>
     <string name="title_activity_deposit_in_bank">DepositInBankActivity</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

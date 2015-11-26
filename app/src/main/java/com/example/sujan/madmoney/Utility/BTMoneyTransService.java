@@ -120,7 +120,7 @@ public class BTMoneyTransService extends IntentService {
 
             RSAPublicKey rsaPublicKey = apkHandler.getPublicKey(madMoneyAddress);
 
-            JSONArray money = getJSONMoneyToTransferFromBucket();
+            JSONArray money = Money.getJSONMoneyToTransferFromBucket();
             try {
 
                 SecretKeySpec synchronousKey = AESEncryptionDecryption.generateKey();
@@ -170,17 +170,4 @@ public class BTMoneyTransService extends IntentService {
 
         }
     };
-
-    public static JSONArray getJSONMoneyToTransferFromBucket() {
-        JSONArray jsonArray = new JSONArray();
-        HashMap<Integer, List<Money>> bucketMoney = GlobalStatic.getTransCollection();
-        if (bucketMoney == null)
-            return null;
-        for (Integer key : bucketMoney.keySet()) {
-            for (Money money : bucketMoney.get(key)) {
-                jsonArray.put(money.toJSON());
-            }
-        }
-        return jsonArray;
-    }
 }
