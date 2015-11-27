@@ -1,8 +1,10 @@
 package com.example.sujan.madmoney.Fragments;
 
+import android.app.FragmentManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -64,7 +66,7 @@ public class OnlineRFragment extends Fragment {
     private void initialise() {
         getAndSetAddressOnlineAddressList();
 
-        OnlineRecyclerAdaptor adaptor = new OnlineRecyclerAdaptor(new OnDragListener());
+        OnlineRecyclerAdaptor adaptor = new OnlineRecyclerAdaptor(new OnDragListener(), new OnClickListener(getActivity().getApplicationContext(), getFragmentManager()));
 
         recyclerView.setAdapter(adaptor);
     }
@@ -131,6 +133,26 @@ public class OnlineRFragment extends Fragment {
                     break;
             }
             return false;
+        }
+    }
+
+    private class OnClickListener implements View.OnClickListener {
+        Context context;
+        FragmentManager fragmentManager;
+
+        public OnClickListener(Context applicationContext, FragmentManager fragmentManager) {
+            context = applicationContext;
+            this.fragmentManager = fragmentManager;
+        }
+
+        @Override
+        public void onClick(View v) {
+            int addressId = Integer.parseInt((String) v.getTag());
+            EditAddressDialog editAddressDialog = new EditAddressDialog();
+            Bundle bundle = new Bundle();
+            bundle.putInt("addressId", addressId);
+            editAddressDialog.setArguments(bundle);
+            editAddressDialog.show(fragmentManager, "ADD_NEW_ADDRESS");
         }
     }
 

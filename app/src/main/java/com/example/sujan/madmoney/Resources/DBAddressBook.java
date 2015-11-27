@@ -123,6 +123,18 @@ public class DBAddressBook extends SQLiteOpenHelper {
         return true;
     }
 
+    public void updateUserAddressTable(int id, String name, String userAddressId, String phoneNo) {
+        ContentValues values = new ContentValues();
+        String whereClause = "Id" + "=?";
+        String[] whereArgs = new String[]{String.valueOf(id)};
+        values.put("Name", name);
+        values.put("PhoneNo", phoneNo);
+        values.put("UserAddressId", userAddressId);
+        SQLiteDatabase database = this.getWritableDatabase();
+        database.update(USER_ADDRESS_TABLE_NAME, values, whereClause, whereArgs);
+        database.close();
+    }
+
     public void updatePhoneUserTable(String phoneNo, String userAddressId) {
         ContentValues values = new ContentValues();
         values.put("PhoneNo", phoneNo);

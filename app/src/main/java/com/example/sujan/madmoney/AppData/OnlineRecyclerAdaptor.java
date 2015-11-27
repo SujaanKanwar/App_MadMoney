@@ -20,8 +20,11 @@ public class OnlineRecyclerAdaptor extends RecyclerView.Adapter<OnlineRecyclerAd
     private List<UserAddress> onlineAddressList = GlobalStatic.getOnlineUserAddressList();
     private View.OnDragListener onDragListener;
 
-    public OnlineRecyclerAdaptor(View.OnDragListener onDragListener) {
+    private View.OnClickListener onClickListener;
+
+    public OnlineRecyclerAdaptor(View.OnDragListener onDragListener, View.OnClickListener onClickListener) {
         this.onDragListener = onDragListener;
+        this.onClickListener = onClickListener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -53,6 +56,8 @@ public class OnlineRecyclerAdaptor extends RecyclerView.Adapter<OnlineRecyclerAd
         frameLayout.setTag(onlineAddressList.get(position).getId());
 
         frameLayout.setOnDragListener(onDragListener);
+
+        frameLayout.setOnClickListener(onClickListener);
     }
 
     @Override

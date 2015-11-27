@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelUuid;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -35,6 +36,7 @@ import com.example.sujan.madmoney.Utility.BTMoneyTransService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class OfflineRFragment extends Fragment {
 
@@ -147,11 +149,18 @@ public class OfflineRFragment extends Fragment {
 
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
 
+
         if (pairedDevices.size() > 0) {
-
             for (BluetoothDevice device : pairedDevices) {
-
-                bluetoothDeviceList.add(device);
+                //get BT address list from DB
+                ParcelUuid[] uuids = device.getUuids();
+                int i;
+                for (i = 0; i < uuids.length; i++) {
+                    if (uuids[i].getUuid().compareTo(UUID.fromString("00001105-0000-1000-8000-00805f9b34fb")) == 0)
+                        break;
+                }
+                if (i != uuids.length)
+                    bluetoothDeviceList.add(device);
             }
         }
         GlobalStatic.setBluetoothDeviceList(bluetoothDeviceList);
