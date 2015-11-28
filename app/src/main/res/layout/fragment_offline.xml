@@ -5,7 +5,7 @@
     android:gravity="center_horizontal"
     android:background="@color/colorPrimary"
     android:orientation="vertical"
-    tools:context="com.example.sujan.madmoney.Fragments.OfflineRFragment">
+    tools:context="com.payment.sujan.madmoney.Fragments.OfflineRFragment">
 
     <TextView
         android:id="@+id/devicesTextView"

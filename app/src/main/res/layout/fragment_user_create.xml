@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context="com.example.sujan.madmoney.Fragments.UserCreateFragment">
+    tools:context="com.payment.sujan.madmoney.Fragments.UserCreateFragment">
 
     <EditText
         android:id="@+id/firstName"

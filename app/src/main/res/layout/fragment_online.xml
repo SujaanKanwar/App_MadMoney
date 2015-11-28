@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@color/colorAccent"
-    tools:context="com.example.sujan.madmoney.Fragments.OnlineRFragment"
+    tools:context="com.payment.sujan.madmoney.Fragments.OnlineRFragment"
     android:orientation="horizontal">
 
 
