@@ -18,4 +18,27 @@ public class BTAddress {
         this.userAddressId = userAddressId;
         this.phoneNo = phoneNo;
     }
+    public String getId() {
+        return id;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public String getPhoneNo() {
+        return phoneNo;
+    }
+
+    public String getUserAddressId() {
+        return userAddressId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getDeviceAddress() {
+        return deviceAddress;
+    }
 }

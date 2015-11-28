@@ -2,6 +2,7 @@ package com.example.sujan.madmoney.Fragments;
 
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -134,7 +135,7 @@ public class OfflineRFragment extends Fragment {
 
         getAndDisplayPairedOrNewBTDevices();
 
-        offlineRecyclerAdaptor = new OfflineRecyclerAdaptor(new OnDragListener());
+        offlineRecyclerAdaptor = new OfflineRecyclerAdaptor(getActivity().getApplicationContext(), new OnDragListener(), new OnClickListener(getActivity().getApplicationContext(), getFragmentManager()));
 
         recyclerView.setAdapter(offlineRecyclerAdaptor);
 
@@ -274,6 +275,27 @@ public class OfflineRFragment extends Fragment {
                     break;
             }
             return false;
+        }
+    }
+
+    private class OnClickListener implements View.OnClickListener {
+        Context context;
+        FragmentManager fragmentManager;
+
+        public OnClickListener(Context applicationContext, FragmentManager fragmentManager) {
+            context = applicationContext;
+            this.fragmentManager = fragmentManager;
+        }
+
+        @Override
+        public void onClick(View v) {
+            View deviceView = v.findViewById(R.id.deviceName);
+            String deviceName = ((TextView) deviceView).getText().toString();
+            EditOfflineAddressDialog editOfflineAddressDialog = new EditOfflineAddressDialog();
+            Bundle bundle = new Bundle();
+            bundle.putString("DEVICE_NAME", deviceName);
+            editOfflineAddressDialog.setArguments(bundle);
+            editOfflineAddressDialog.show(fragmentManager, "EDIT_ADDRESS");
         }
     }
 }

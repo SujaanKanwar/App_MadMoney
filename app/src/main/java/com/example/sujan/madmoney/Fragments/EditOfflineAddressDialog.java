@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
+import com.example.sujan.madmoney.AppData.BTAddress;
 import com.example.sujan.madmoney.AppData.GlobalStatic;
 import com.example.sujan.madmoney.AppData.UserAddress;
 import com.example.sujan.madmoney.R;
@@ -17,17 +18,18 @@ import com.example.sujan.madmoney.Resources.DBAddressBook;
 import java.util.List;
 
 /**
- * Created by Sujan on 11/27/2015.
+ * Created by Sujan on 11/28/2015.
  */
-public class EditAddressDialog extends DialogFragment {
+public class EditOfflineAddressDialog extends DialogFragment {
+
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        int addressId = getArguments().getInt("addressId");
+        String deviceName = getArguments().getString("DEVICE_NAME");
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialogue_add_address, null);
-        setUserAddressValues(view, addressId);
+        setUserAddressValues(view, deviceName);
 
         builder.setView(view)
                 .setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() {
@@ -38,7 +40,7 @@ public class EditAddressDialog extends DialogFragment {
                         String phoneNo = ((EditText) getDialog().findViewById(R.id.ab_phone_number)).getText() + "";
                         int Id = Integer.parseInt((String) getDialog().findViewById(R.id.ab_username).getTag());
                         DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
-                        dbAddressBook.updateUserAddressTable(Id, name, addressId, phoneNo);
+                        dbAddressBook.updateBTAddressTable(Id, name);
                     }
                 })
                 .setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -46,25 +48,26 @@ public class EditAddressDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         int Id = Integer.parseInt((String) getDialog().findViewById(R.id.ab_username).getTag());
                         DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
-                        dbAddressBook.deleteUserAddress(Id);
+                        dbAddressBook.deleteBTAddress(Id);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        EditAddressDialog.this.getDialog().cancel();
+                        EditOfflineAddressDialog.this.getDialog().cancel();
                     }
                 });
         return builder.create();
     }
 
-    private void setUserAddressValues(View view, int addressId) {
-        List<UserAddress> addressList = GlobalStatic.getOnlineUserAddressList();
-        for (UserAddress userAddress : addressList) {
-            if (userAddress.getId().equals(addressId +"")) {
-                ((EditText) view.findViewById(R.id.ab_username)).setText(userAddress.getUserName());
+    private void setUserAddressValues(View view, String deviceName) {
+        DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
+        List<BTAddress> dbBTAddressBookList = dbAddressBook.selectBTAddress();
+        for (BTAddress userAddress : dbBTAddressBookList) {
+            if (userAddress.getDeviceName().equals(deviceName)) {
+                ((EditText) view.findViewById(R.id.ab_username)).setText(userAddress.getDeviceName());
                 ((EditText) view.findViewById(R.id.ab_username)).setTag(userAddress.getId());
-                ((EditText) view.findViewById(R.id.ab_user_address_id)).setText(userAddress.getUserAddressId());
-                ((EditText) view.findViewById(R.id.ab_phone_number)).setText(userAddress.getPhoneNo());
+                ((EditText) view.findViewById(R.id.ab_user_address_id)).setVisibility(View.INVISIBLE);
+                ((EditText) view.findViewById(R.id.ab_phone_number)).setVisibility(View.INVISIBLE);
                 break;
             }
         }

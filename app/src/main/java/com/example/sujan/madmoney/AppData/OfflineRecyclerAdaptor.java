@@ -1,6 +1,7 @@
 package com.example.sujan.madmoney.AppData;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.example.sujan.madmoney.Fragments.OfflineRFragment;
 import com.example.sujan.madmoney.R;
+import com.example.sujan.madmoney.Resources.DBAddressBook;
 
 import java.util.List;
 
@@ -19,9 +22,17 @@ public class OfflineRecyclerAdaptor extends RecyclerView.Adapter<OfflineRecycler
 
     private List<BluetoothDevice> bluetoothDeviceList = GlobalStatic.getBluetoothDeviceList();
     private View.OnDragListener onDragListener;
+    private Context context;
+    private List<BTAddress> dbBTAddressBookList;
+    private DBAddressBook dbAddressBookStore;
+    private View.OnClickListener onClickListener;
 
-    public OfflineRecyclerAdaptor(View.OnDragListener onDragListener) {
+    public OfflineRecyclerAdaptor(Context context, View.OnDragListener onDragListener, View.OnClickListener onClickListener) {
         this.onDragListener = onDragListener;
+        this.context = context;
+        this.dbAddressBookStore = new DBAddressBook(context);
+        this.dbBTAddressBookList = dbAddressBookStore.selectBTAddress();
+        this.onClickListener = onClickListener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -50,16 +61,33 @@ public class OfflineRecyclerAdaptor extends RecyclerView.Adapter<OfflineRecycler
 
         TextView deviceNameTextView = (TextView) frameLayout.findViewById(R.id.deviceName);
 
+        int i;
+        String deviceName = null, deviceAddress = null;
+        for (i = 0; i < dbBTAddressBookList.size(); i++) {
+            if (dbBTAddressBookList.get(i).getDeviceAddress().equals(bluetoothDeviceList.get(position).getAddress())) {
+                deviceName = dbBTAddressBookList.get(i).getDeviceName();
+                deviceAddress = dbBTAddressBookList.get(i).getDeviceAddress();
+                break;
+            }
+        }
+        if (deviceName == null) {
+            dbAddressBookStore.insertBTAddress(bluetoothDeviceList.get(position).getName(), bluetoothDeviceList.get(position).getAddress());
+            deviceName = bluetoothDeviceList.get(position).getName();
+            deviceAddress = bluetoothDeviceList.get(position).getAddress();
+        }
+
         //  Get the device list from the db
         //1. Device Tell Me your address
         //2. if returns save into the database
         //3. Show to the UI
 
-        deviceNameTextView.setText(bluetoothDeviceList.get(position).getName());
+        deviceNameTextView.setText(deviceName);
 
-        frameLayout.setTag(bluetoothDeviceList.get(position).getAddress());
+        frameLayout.setTag(deviceAddress);
 
         frameLayout.setOnDragListener(onDragListener);
+
+        frameLayout.setOnClickListener(onClickListener);
     }
 
     @Override

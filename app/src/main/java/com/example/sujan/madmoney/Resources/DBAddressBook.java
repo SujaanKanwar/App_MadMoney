@@ -68,6 +68,16 @@ public class DBAddressBook extends SQLiteOpenHelper {
         database.close();
     }
 
+    public void updateBTAddressTable(int id, String deviceName) {
+        ContentValues values = new ContentValues();
+        String whereClause = "Id" + "=?";
+        String[] whereArgs = new String[]{String.valueOf(id)};
+        values.put("DeviceName", deviceName);
+        SQLiteDatabase database = this.getWritableDatabase();
+        database.update(BT_ADDRESS_TABLE_NAME, values, whereClause, whereArgs);
+        database.close();
+    }
+
     public List<BTAddress> selectBTAddress() {
         List<BTAddress> list = new ArrayList<>();
 

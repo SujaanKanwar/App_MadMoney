@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void initializeUserVariables(SharedPreferences sharedPreferences) {
 
-        String userAddress = sharedPreferences.getString(SharedPrefConstants.USER_ADDRESS_ID, null);
+        final String userAddress = sharedPreferences.getString(SharedPrefConstants.USER_ADDRESS_ID, null);
         String userName = sharedPreferences.getString(SharedPrefConstants.USER_NAME, null);
 
         GlobalStatic.setUserAddressId(userAddress);
@@ -218,6 +220,13 @@ public class MainActivity extends AppCompatActivity implements
         userNameView.setText(userName);
         userAddressView.setText("Copy Address");
         userAddressView.setTag(userAddress);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        userAddressView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipData clip = ClipData.newPlainText("COPY_ADDRESS", userAddress);
+            }
+        });
 
         fetchMoneyView.setOnClickListener(new View.OnClickListener() {
             @Override

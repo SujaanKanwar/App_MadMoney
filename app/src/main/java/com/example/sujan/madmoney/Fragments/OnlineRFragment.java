@@ -1,7 +1,6 @@
 package com.example.sujan.madmoney.Fragments;
 
 import android.app.FragmentManager;
-import android.bluetooth.BluetoothDevice;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
@@ -25,7 +24,6 @@ import com.example.sujan.madmoney.Connectors.Constants;
 import com.example.sujan.madmoney.R;
 import com.example.sujan.madmoney.Resources.DBAddressBook;
 import com.example.sujan.madmoney.Services.UtilityService;
-import com.example.sujan.madmoney.Utility.BTMoneyTransService;
 
 import java.util.List;
 
@@ -148,11 +146,11 @@ public class OnlineRFragment extends Fragment {
         @Override
         public void onClick(View v) {
             int addressId = Integer.parseInt((String) v.getTag());
-            EditAddressDialog editAddressDialog = new EditAddressDialog();
+            EditOnlineAddressDialog editOnlineAddressDialog = new EditOnlineAddressDialog();
             Bundle bundle = new Bundle();
             bundle.putInt("addressId", addressId);
-            editAddressDialog.setArguments(bundle);
-            editAddressDialog.show(fragmentManager, "ADD_NEW_ADDRESS");
+            editOnlineAddressDialog.setArguments(bundle);
+            editOnlineAddressDialog.show(fragmentManager, "EDIT_ADDRESS");
         }
     }
 
