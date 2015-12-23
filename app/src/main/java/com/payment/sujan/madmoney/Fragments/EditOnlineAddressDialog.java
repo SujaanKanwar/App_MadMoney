@@ -20,10 +20,9 @@ import java.util.List;
  * Created by Sujan on 11/27/2015.
  */
 public class EditOnlineAddressDialog extends DialogFragment {
+
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         int addressId = getArguments().getInt("addressId");
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialogue_add_address, null);
@@ -37,7 +36,7 @@ public class EditOnlineAddressDialog extends DialogFragment {
                         String addressId = ((EditText) getDialog().findViewById(R.id.ab_user_address_id)).getText() + "";
                         String phoneNo = ((EditText) getDialog().findViewById(R.id.ab_phone_number)).getText() + "";
                         int Id = Integer.parseInt((String) getDialog().findViewById(R.id.ab_username).getTag());
-                        com.payment.sujan.madmoney.Resources.DBAddressBook dbAddressBook = new com.payment.sujan.madmoney.Resources.DBAddressBook(getActivity().getApplicationContext());
+                        DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
                         dbAddressBook.updateUserAddressTable(Id, name, addressId, phoneNo);
                     }
                 })
@@ -45,7 +44,7 @@ public class EditOnlineAddressDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         int Id = Integer.parseInt((String) getDialog().findViewById(R.id.ab_username).getTag());
-                        com.payment.sujan.madmoney.Resources.DBAddressBook dbAddressBook = new com.payment.sujan.madmoney.Resources.DBAddressBook(getActivity().getApplicationContext());
+                        DBAddressBook dbAddressBook = new DBAddressBook(getActivity().getApplicationContext());
                         dbAddressBook.deleteUserAddress(Id);
                     }
                 })
@@ -58,9 +57,9 @@ public class EditOnlineAddressDialog extends DialogFragment {
     }
 
     private void setUserAddressValues(View view, int addressId) {
-        List<com.payment.sujan.madmoney.AppData.UserAddress> addressList = com.payment.sujan.madmoney.AppData.GlobalStatic.getOnlineUserAddressList();
-        for (com.payment.sujan.madmoney.AppData.UserAddress userAddress : addressList) {
-            if (userAddress.getId().equals(addressId +"")) {
+        List<UserAddress> addressList = GlobalStatic.getOnlineUserAddressList();
+        for (UserAddress userAddress : addressList) {
+            if (userAddress.getId().equals(addressId + "")) {
                 ((EditText) view.findViewById(R.id.ab_username)).setText(userAddress.getUserName());
                 ((EditText) view.findViewById(R.id.ab_username)).setTag(userAddress.getId());
                 ((EditText) view.findViewById(R.id.ab_user_address_id)).setText(userAddress.getUserAddressId());

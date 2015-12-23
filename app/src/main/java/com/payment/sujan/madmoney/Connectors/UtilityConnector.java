@@ -15,18 +15,22 @@ import java.net.URL;
  * Created by Sujan on 11/9/2015.
  */
 public class UtilityConnector {
-    private String APKFileFromServer;
-    private String BASE_URL = "http://192.168.0.108/MadMoneyService.svc/";
+    private String BASE_URL = "http://192.168.0.103/MadMoneyService.svc/";
     private String GET_APK_FILE_URL = "APKFile";
+    private String GET_TEL_LOCATION_URL = "gettlocations";
     private String TRANS_MONEY = "DepositMoneyToAccount";
 
     public String getAPKFileFromServer() {
 
         String url = BASE_URL + GET_APK_FILE_URL;
 
-        APKFileFromServer = post(url,null);
+        return post(url, null);
+    }
 
-        return APKFileFromServer;
+    public String getTeleportingPositions(String data) {
+        String url = BASE_URL + GET_TEL_LOCATION_URL;
+
+        return post(url, data);
     }
 
     private String post(String url, String postParameters) {

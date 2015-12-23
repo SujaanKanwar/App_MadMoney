@@ -70,7 +70,7 @@ public class WalletFragment extends Fragment implements com.payment.sujan.madmon
     }
 
     private void getAPKFileFromServer(Context context) {
-        com.payment.sujan.madmoney.Services.UtilityService.getAPKFileFromServer(context);
+        UtilityService.getAPKFileFromServer(context);
     }
 
     @Override
@@ -90,9 +90,9 @@ public class WalletFragment extends Fragment implements com.payment.sujan.madmon
 
     public void fetchMoneyFromServer() {
 
-        com.payment.sujan.madmoney.Requesters.FetchMoneyRequest request = new com.payment.sujan.madmoney.Requesters.FetchMoneyRequest("", userAddressId, com.payment.sujan.madmoney.Connectors.Constants.FetchMoneyRequest.INIT);
+        FetchMoneyRequest request = new FetchMoneyRequest("", userAddressId, Constants.FetchMoneyRequest.INIT);
 
-        fetchMoneyConnector = new com.payment.sujan.madmoney.Connectors.FetchMoneyConnector(this);
+        fetchMoneyConnector = new FetchMoneyConnector(this);
 
         fetchMoneyConnector.service(request.toJSONString());
     }

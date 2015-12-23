@@ -1,21 +1,24 @@
 package com.payment.sujan.madmoney;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,31 +26,50 @@ import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationServices;
 import com.payment.sujan.madmoney.AppData.GlobalStatic;
-import com.payment.sujan.madmoney.DepositInBankActivity;
+import com.payment.sujan.madmoney.AppData.Position;
 import com.payment.sujan.madmoney.Fragments.BucketFragment;
 import com.payment.sujan.madmoney.Fragments.OfflineRFragment;
 import com.payment.sujan.madmoney.Fragments.OnlineRFragment;
 import com.payment.sujan.madmoney.Fragments.WalletFragment;
-import com.payment.sujan.madmoney.R;
-import com.payment.sujan.madmoney.RechargeActivity;
 import com.payment.sujan.madmoney.RegisterUser.RegisterUserActivity;
+import com.payment.sujan.madmoney.Resources.DBTeleLocation;
 import com.payment.sujan.madmoney.Services.BluetoothBackgroundService;
+import com.payment.sujan.madmoney.Services.DeviceBackgroundServices;
+import com.payment.sujan.madmoney.Services.UtilityService;
 import com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class MainActivity extends AppCompatActivity implements
-        NavigationView.OnNavigationItemSelectedListener {
+        NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private FragmentTransaction fragmentTransaction;
-    private com.payment.sujan.madmoney.Fragments.WalletFragment walletFragment;
-    private com.payment.sujan.madmoney.Fragments.OfflineRFragment offlineRFragment;
-    private com.payment.sujan.madmoney.Fragments.BucketFragment bucketFragment;
-    private com.payment.sujan.madmoney.Fragments.OnlineRFragment onlineRFragment;
+    private WalletFragment walletFragment;
+    private OfflineRFragment offlineRFragment;
+    private BucketFragment bucketFragment;
+    private OnlineRFragment onlineRFragment;
     private int NEW_USER_REGISTERED = 1;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +82,9 @@ public class MainActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
 
-            SharedPreferences sharedPreferences = getSharedPreferences(com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-            if (!sharedPreferences.getBoolean(com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants.IS_USER_CREATED, false)) {
+            if (!sharedPreferences.getBoolean(SharedPrefConstants.IS_USER_CREATED, false)) {
 
                 activityRegisterNewUser();
 
@@ -72,9 +94,62 @@ public class MainActivity extends AppCompatActivity implements
 
                 initializeUserVariables(sharedPreferences);
 
-                runBackgroundBTService();
+                runBackgroundServices();
             }
         }
+    }
+
+    private void runBackgroundServices() {
+        runBackgroundBTService();
+
+        statusCheck();
+    }
+
+    public void statusCheck() {
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+
+        } else {
+            buildGoogleApiClient();
+
+            mGoogleApiClient.connect();
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+
+                        buildGoogleApiClient();
+
+                        mGoogleApiClient.connect();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+    }
+
+    private String createTelPositionRQ(String city) {
+        JSONObject jsonObject1 = new JSONObject();
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("CurrentLocation", city);
+            jsonObject1.put("data", jsonObject);
+        } catch (JSONException e) {
+        }
+        return jsonObject1.toString();
     }
 
     @Override
@@ -121,15 +196,14 @@ public class MainActivity extends AppCompatActivity implements
         int id = menuItem.getItemId();
         Intent intent;
 
-        switch (id)
-        {
+        switch (id) {
             case R.id.nav_recharge:
-                intent = new Intent(this, com.payment.sujan.madmoney.RechargeActivity.class);
+                intent = new Intent(this, RechargeActivity.class);
 
                 startActivity(intent);
                 break;
             case R.id.nav_deposit_to_my_bank:
-                intent = new Intent(this, com.payment.sujan.madmoney.DepositInBankActivity.class);
+                intent = new Intent(this, DepositInBankActivity.class);
 
                 startActivity(intent);
                 break;
@@ -147,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (requestCode == NEW_USER_REGISTERED && resultCode == RESULT_OK) {
 
-            SharedPreferences sharedPreferences = getSharedPreferences(com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
             Button registerMe = (Button) findViewById(R.id.register_me);
 
@@ -159,19 +233,25 @@ public class MainActivity extends AppCompatActivity implements
 
             runBackgroundBTService();
         }
+
+    }
+
+    public void refreshMoney() {
+        if (walletFragment != null)
+            walletFragment.refreshMoney();
     }
 
     private void runBackgroundBTService() {
-        String addressId = com.payment.sujan.madmoney.AppData.GlobalStatic.getUserAddressId();
-        if (!isMyServiceRunning(com.payment.sujan.madmoney.Services.BluetoothBackgroundService.class) && addressId != null) {
-            com.payment.sujan.madmoney.Services.BluetoothBackgroundService bluetoothBackgroundService = new com.payment.sujan.madmoney.Services.BluetoothBackgroundService();
+        String addressId = GlobalStatic.getUserAddressId();
+        if (!isMyServiceRunning(BluetoothBackgroundService.class) && addressId != null) {
+            BluetoothBackgroundService bluetoothBackgroundService = new BluetoothBackgroundService();
             bluetoothBackgroundService.startBTBackgroundService(getApplicationContext(), addressId);
         }
     }
 
     private void stopBackgroundBTService() {
-        if (isMyServiceRunning(com.payment.sujan.madmoney.Services.BluetoothBackgroundService.class)) {
-            Intent intent = new Intent(this, com.payment.sujan.madmoney.Services.BluetoothBackgroundService.class);
+        if (isMyServiceRunning(BluetoothBackgroundService.class)) {
+            Intent intent = new Intent(this, BluetoothBackgroundService.class);
             getBaseContext().stopService(intent);
         }
     }
@@ -186,12 +266,6 @@ public class MainActivity extends AppCompatActivity implements
         return false;
     }
 
-    public void refreshMoney() {
-        if (walletFragment != null)
-            walletFragment.refreshMoney();
-    }
-
-
     private void activityRegisterNewUser() {
 
         Button registerMe = (Button) findViewById(R.id.register_me);
@@ -203,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements
         registerMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, com.payment.sujan.madmoney.RegisterUser.RegisterUserActivity.class);
+                Intent intent = new Intent(context, RegisterUserActivity.class);
                 startActivityForResult(intent, NEW_USER_REGISTERED);
             }
         });
@@ -211,10 +285,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private void initializeUserVariables(SharedPreferences sharedPreferences) {
 
-        final String userAddress = sharedPreferences.getString(com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants.USER_ADDRESS_ID, null);
-        String userName = sharedPreferences.getString(com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants.USER_NAME, null);
+        final String userAddress = sharedPreferences.getString(SharedPrefConstants.USER_ADDRESS_ID, null);
+        String userName = sharedPreferences.getString(SharedPrefConstants.USER_NAME, null);
 
-        com.payment.sujan.madmoney.AppData.GlobalStatic.setUserAddressId(userAddress);
+        GlobalStatic.setUserAddressId(userAddress);
 
         TextView userNameView = (TextView) findViewById(R.id.user_name);
         TextView userAddressView = (TextView) findViewById(R.id.address_id);
@@ -235,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements
         fetchMoneyView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(walletFragment !=null)
+                if (walletFragment != null)
                     walletFragment.fetchMoneyFromServer();
             }
         });
@@ -245,10 +319,10 @@ public class MainActivity extends AppCompatActivity implements
 
         fragmentTransaction = getFragmentManager().beginTransaction();
 
-        walletFragment = new com.payment.sujan.madmoney.Fragments.WalletFragment();
-        offlineRFragment = new com.payment.sujan.madmoney.Fragments.OfflineRFragment();
-        bucketFragment = new com.payment.sujan.madmoney.Fragments.BucketFragment();
-        onlineRFragment = new com.payment.sujan.madmoney.Fragments.OnlineRFragment();
+        walletFragment = new WalletFragment();
+        offlineRFragment = new OfflineRFragment();
+        bucketFragment = new BucketFragment();
+        onlineRFragment = new OnlineRFragment();
 
         fragmentTransaction.replace(R.id.bottom_fragment_container, walletFragment);
 
@@ -280,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements
         fragmentTransaction = getFragmentManager().beginTransaction();
 
         if (offlineRFragment == null)
-            offlineRFragment = new com.payment.sujan.madmoney.Fragments.OfflineRFragment();
+            offlineRFragment = new OfflineRFragment();
 
         fragmentTransaction.replace(R.id.top_fragment_container, offlineRFragment).commit();
     }
@@ -290,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements
         fragmentTransaction = getFragmentManager().beginTransaction();
 
         if (onlineRFragment == null)
-            onlineRFragment = new com.payment.sujan.madmoney.Fragments.OnlineRFragment();
+            onlineRFragment = new OnlineRFragment();
 
         fragmentTransaction.replace(R.id.top_fragment_container, onlineRFragment).commit();
     }
@@ -298,5 +372,80 @@ public class MainActivity extends AppCompatActivity implements
     public void refreshMoneyView() {
         if (walletFragment != null)
             walletFragment.refreshMoneyView();
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+        Date currentLocalTime = Calendar.getInstance(TimeZone.getTimeZone("GMT+5:30")).getTime();
+        String lastUpdatedDate = this.getApplicationContext()
+                .getSharedPreferences(SharedPrefConstants
+                        .SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                .getString(SharedPrefConstants.GET_TEL_POSITION_UPDATE_DATE, null);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(lastUpdatedDate));
+        int lastUpdatedDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
+        calendar.setTime(currentLocalTime);
+        int todayDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
+
+        if (lastUpdatedDate == null || todayDayOfTheYear - lastUpdatedDayOfTheYear > 0) {
+            fetchTeleportingLocations(dbTeleLocation);
+        } else {
+            InitiateGeoFences();
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    private void fetchTeleportingLocations(DBTeleLocation dbTeleLocation) {
+        dbTeleLocation.deleteAllPositions();
+        double latitude = 0, longitude = 0;
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
+            if (latitude != 0 || longitude != 0) {
+                String cityName = null;
+                Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
+                List<Address> addresses = null;
+                try {
+                    addresses = gcd.getFromLocation(latitude, longitude, 1);
+                } catch (IOException e) {
+                }
+                if (addresses != null && addresses.size() > 0) {
+                    cityName = addresses.get(0).getLocality();
+                    if (cityName != null) {
+                        String request = createTelPositionRQ(cityName);
+                        UtilityService.getTeleportingPositions(this.getApplicationContext(), request);
+                    }
+                }
+            }
+        }
+    }
+
+    public void InitiateGeoFences() {
+        DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+        ArrayList<Position> positions = (ArrayList<Position>) dbTeleLocation.selectTelPositions();
+        if (positions.size() > 0) {
+            GlobalStatic.setGoogleApiClient(mGoogleApiClient);
+            DeviceBackgroundServices.setGeofences(this, positions);
+        }
     }
 }

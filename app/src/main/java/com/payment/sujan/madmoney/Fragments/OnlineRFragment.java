@@ -21,9 +21,6 @@ import com.payment.sujan.madmoney.AppData.GlobalStatic;
 import com.payment.sujan.madmoney.AppData.OnlineRecyclerAdaptor;
 import com.payment.sujan.madmoney.AppData.UserAddress;
 import com.payment.sujan.madmoney.Connectors.Constants;
-import com.payment.sujan.madmoney.Fragments.*;
-import com.payment.sujan.madmoney.Fragments.BucketFragment;
-import com.payment.sujan.madmoney.Fragments.onAddNewAddressListener;
 import com.payment.sujan.madmoney.R;
 import com.payment.sujan.madmoney.Resources.DBAddressBook;
 import com.payment.sujan.madmoney.Services.UtilityService;
@@ -67,7 +64,7 @@ public class OnlineRFragment extends Fragment {
     private void initialise() {
         getAndSetAddressOnlineAddressList();
 
-        OnlineRecyclerAdaptor adaptor = new OnlineRecyclerAdaptor(new OnDragListener(), new OnClickListener(getActivity().getApplicationContext(), getFragmentManager()));
+        OnlineRecyclerAdaptor adaptor = new OnlineRecyclerAdaptor(new OnDragListener(), new OnClickListener(getFragmentManager()));
 
         recyclerView.setAdapter(adaptor);
     }
@@ -138,11 +135,11 @@ public class OnlineRFragment extends Fragment {
     }
 
     private class OnClickListener implements View.OnClickListener {
-        Context context;
+
         FragmentManager fragmentManager;
 
-        public OnClickListener(Context applicationContext, FragmentManager fragmentManager) {
-            context = applicationContext;
+        public OnClickListener(FragmentManager fragmentManager) {
+
             this.fragmentManager = fragmentManager;
         }
 

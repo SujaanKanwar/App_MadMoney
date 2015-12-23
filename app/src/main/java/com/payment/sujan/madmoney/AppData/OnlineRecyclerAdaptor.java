@@ -6,9 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
-import com.payment.sujan.madmoney.AppData.*;
-import com.payment.sujan.madmoney.AppData.UserAddress;
 import com.payment.sujan.madmoney.R;
 
 import java.util.List;
@@ -19,7 +16,7 @@ import java.util.List;
 public class OnlineRecyclerAdaptor extends RecyclerView.Adapter<OnlineRecyclerAdaptor.ViewHolder> {
 
 
-    private List<com.payment.sujan.madmoney.AppData.UserAddress> onlineAddressList = GlobalStatic.getOnlineUserAddressList();
+    private List<UserAddress> onlineAddressList = GlobalStatic.getOnlineUserAddressList();
     private View.OnDragListener onDragListener;
 
     private View.OnClickListener onClickListener;

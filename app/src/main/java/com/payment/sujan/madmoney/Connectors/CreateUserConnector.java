@@ -27,7 +27,7 @@ public class CreateUserConnector {
 
     private static final String LOGGER_TAG = "CreateUserServiceCall";
 
-    private static final String createUserUrl = "http://192.168.0.108/MadMoneyService.svc/CreateUser";
+    private static final String createUserUrl = "http://192.168.0.103/MadMoneyService.svc/CreateUser";
 
     private static final boolean isDummy = false;
 
