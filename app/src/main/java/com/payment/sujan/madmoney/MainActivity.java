@@ -3,7 +3,6 @@ package com.payment.sujan.madmoney;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -30,11 +29,10 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.payment.sujan.madmoney.AppData.GlobalStatic;
 import com.payment.sujan.madmoney.AppData.Position;
+import com.payment.sujan.madmoney.Cryptography.KeyPairGeneratorStore;
 import com.payment.sujan.madmoney.Fragments.BucketFragment;
 import com.payment.sujan.madmoney.Fragments.OfflineRFragment;
 import com.payment.sujan.madmoney.Fragments.OnlineRFragment;
@@ -46,6 +44,7 @@ import com.payment.sujan.madmoney.Services.DeviceBackgroundServices;
 import com.payment.sujan.madmoney.Services.UtilityService;
 import com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -177,6 +176,10 @@ public class MainActivity extends AppCompatActivity implements
                 return true;
             case R.id.refresh_money:
                 refreshMoney();
+                return true;
+
+            case R.id.sendDiscoveredLocation:
+                sendDiscoveredLocations();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -369,6 +372,68 @@ public class MainActivity extends AppCompatActivity implements
         fragmentTransaction.replace(R.id.top_fragment_container, onlineRFragment).commit();
     }
 
+    private void sendDiscoveredLocations() {
+        DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+        List<Position> discoveredLocations = dbTeleLocation.selectTelPositions(2);
+        if (discoveredLocations.size() > 0) {
+            String requestData = createSendDiscoveredLocationRQ(discoveredLocations);
+            ArrayList<String> requestIds = getRequestIds(discoveredLocations);
+            UtilityService.sendDiscoveredTelLocations(this, requestData, requestIds);
+        }
+    }
+
+    private ArrayList<String> getRequestIds(List<Position> discoveredLocations) {
+        ArrayList<String> ids = new ArrayList<>();
+        for (Position position : discoveredLocations) {
+            ids.add(position.getRequestId());
+        }
+        return ids;
+    }
+
+    private String createSendDiscoveredLocationRQ(List<Position> discoveredLocations) {
+        JSONObject result = new JSONObject();
+        JSONObject data = new JSONObject();
+        JSONArray locations = getJSONArrayOfDiscoverLocation(discoveredLocations);
+        String userAddressId = GlobalStatic.getUserAddressId();
+        String dataToSign = getDataStringToSign(discoveredLocations, userAddressId);
+        String signature = KeyPairGeneratorStore.SignData(dataToSign);
+        try {
+            data.put("Locations", locations);
+            data.put("UserAddressId", userAddressId);
+            data.put("Signature", signature);
+            result.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
+    private String getDataStringToSign(List<Position> discoveredLocations, String userAddressId) {
+        String response = "";
+        for (Position position : discoveredLocations) {
+            response += position.getRequestId();
+            response += position.getDateAndTimeOfDiscover();
+        }
+        response += userAddressId;
+        return response;
+    }
+
+    private JSONArray getJSONArrayOfDiscoverLocation(List<Position> discoveredLocations) {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject;
+        for (Position position : discoveredLocations) {
+            jsonObject = new JSONObject();
+            try {
+                jsonObject.put("RequestId", position.getRequestId());
+                jsonObject.put("DateAndTimeOfDiscover", position.getDateAndTimeOfDiscover());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
     public void refreshMoneyView() {
         if (walletFragment != null)
             walletFragment.refreshMoneyView();
@@ -391,16 +456,20 @@ public class MainActivity extends AppCompatActivity implements
                         .SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 .getString(SharedPrefConstants.GET_TEL_POSITION_UPDATE_DATE, null);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date(lastUpdatedDate));
-        int lastUpdatedDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
-        calendar.setTime(currentLocalTime);
-        int todayDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
-
-        if (lastUpdatedDate == null || todayDayOfTheYear - lastUpdatedDayOfTheYear > 0) {
+        if (lastUpdatedDate == null)
             fetchTeleportingLocations(dbTeleLocation);
-        } else {
-            InitiateGeoFences();
+        else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date(lastUpdatedDate));
+            int lastUpdatedDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
+            calendar.setTime(currentLocalTime);
+            int todayDayOfTheYear = calendar.get(Calendar.DAY_OF_YEAR);
+//            fetchTeleportingLocations(dbTeleLocation);
+            if (todayDayOfTheYear - lastUpdatedDayOfTheYear > 0) {
+                fetchTeleportingLocations(dbTeleLocation);
+            } else {
+                InitiateGeoFences();
+            }
         }
 
     }
@@ -425,24 +494,26 @@ public class MainActivity extends AppCompatActivity implements
                 String cityName = null;
                 Geocoder gcd = new Geocoder(getApplicationContext(), Locale.getDefault());
                 List<Address> addresses = null;
+                SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF_NAME, Context.MODE_PRIVATE);
                 try {
                     addresses = gcd.getFromLocation(latitude, longitude, 1);
                 } catch (IOException e) {
+                    cityName = sharedPreferences.getString(SharedPrefConstants.GEO_CITY, "Pune");
                 }
                 if (addresses != null && addresses.size() > 0) {
                     cityName = addresses.get(0).getLocality();
-                    if (cityName != null) {
-                        String request = createTelPositionRQ(cityName);
-                        UtilityService.getTeleportingPositions(this.getApplicationContext(), request);
-                    }
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(SharedPrefConstants.GEO_CITY, cityName).commit();
                 }
+                String request = createTelPositionRQ(cityName);
+                UtilityService.getTeleportingPositions(this.getApplicationContext(), request);
             }
         }
     }
 
     public void InitiateGeoFences() {
         DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
-        ArrayList<Position> positions = (ArrayList<Position>) dbTeleLocation.selectTelPositions();
+        ArrayList<Position> positions = (ArrayList<Position>) dbTeleLocation.selectTelPositions(0); //0 for newly inserted locations
         if (positions.size() > 0) {
             GlobalStatic.setGoogleApiClient(mGoogleApiClient);
             DeviceBackgroundServices.setGeofences(this, positions);

@@ -1,15 +1,9 @@
 package com.payment.sujan.madmoney.Utility;
 
 import android.content.Context;
-import android.util.Base64;
 import android.util.Log;
 
-import com.payment.sujan.madmoney.AppData.GlobalStatic;
-import com.payment.sujan.madmoney.AppData.Money;
-import com.payment.sujan.madmoney.Cryptography.AESEncryptionDecryption;
-import com.payment.sujan.madmoney.Cryptography.RSAEncryptionDecryption;
-import com.payment.sujan.madmoney.Resources.DBMoneyStore;
-import com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore;
+import com.payment.sujan.madmoney.Cryptography.KeyPairGeneratorStore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,7 +108,7 @@ public class MoneyStore {
 
         SecretKeySpec secretKeySpec = null;
 
-        PrivateKey myPrivateKey = com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore.getPrivateKey();
+        PrivateKey myPrivateKey = KeyPairGeneratorStore.getPrivateKey();
 
         try {
             byte[] secreteKeyInByte = com.payment.sujan.madmoney.Cryptography.RSAEncryptionDecryption.Decrypt(encryptedKey, myPrivateKey);

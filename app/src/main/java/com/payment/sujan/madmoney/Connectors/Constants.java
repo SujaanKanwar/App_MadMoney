@@ -6,6 +6,8 @@ import java.net.PortUnreachableException;
  * Created by sujan on 12/10/15.
  */
 public class Constants {
+    public static final  String BASE_URL = "http://service.kpcurrency.com/MadMoneyService.svc";
+
     public static final int MESSAGE_MESSAGE_SENT = 1;
     public static final int MESSAGE_MONEY_SENT = 2;
     public static final int MESSAGE_RECEIVED = 3;

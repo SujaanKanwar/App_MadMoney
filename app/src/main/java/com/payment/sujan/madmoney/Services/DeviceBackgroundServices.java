@@ -14,6 +14,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.payment.sujan.madmoney.AppData.GlobalStatic;
 import com.payment.sujan.madmoney.AppData.Position;
+import com.payment.sujan.madmoney.Resources.DBTeleLocation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 public class DeviceBackgroundServices extends IntentService implements ResultCallback<Status> {
     private static final int GEO_FENCE_EXPIRATION_TIME = 24 * 60 * 60 * 1000;
     private static final int GEO_FENCE_LOITERING_TIME = 1 * 1000;
+    ArrayList<Position> positions;
 
 
     private static final String ACTION_SET_GEOFENCE = "com.payment.sujan.madmoney.Services.action.SET_GEOFENCES";
@@ -52,23 +54,33 @@ public class DeviceBackgroundServices extends IntentService implements ResultCal
     }
 
     private void handleActionFoo(ArrayList<Position> positions, GoogleApiClient googleApiClient) {
+        this.positions = positions;
         ArrayList<Geofence> geofenceList = new ArrayList<>();
         double latitude, longitude;
-        int radius;
-        for (int i = 0; i < positions.size(); i++) {
-            latitude = Double.parseDouble(positions.get(i).getLatitude());
-            longitude = Double.parseDouble(positions.get(i).getLongitude());
-            radius = Integer.parseInt(positions.get(i).getRadius());
+        int geofenceExpirationTime, geofenceLoiteringTime;
+        String requestId, strTransactionType;
+        int radius, transactionType;
+        for (Position position : positions) {
+            requestId = position.getRequestId();
+            geofenceExpirationTime = position.getExpirationTime();
+            geofenceLoiteringTime = position.getLoiteringTime();
+            strTransactionType = position.getGeoTransactionType();
+            transactionType = strTransactionType.compareToIgnoreCase("DWELL") == 0 ? Geofence.GEOFENCE_TRANSITION_DWELL
+                    : strTransactionType.compareToIgnoreCase("ENTER") == 0 ? Geofence.GEOFENCE_TRANSITION_ENTER
+                    : Geofence.GEOFENCE_TRANSITION_EXIT;
+            latitude = Double.parseDouble(position.getLatitude());
+            longitude = Double.parseDouble(position.getLongitude());
+            radius = Integer.parseInt(position.getRadius());
             geofenceList.add(new Geofence.Builder()
-                    .setRequestId("123")
+                    .setRequestId(requestId)
                     .setCircularRegion(
                             latitude,
                             longitude,
                             radius
                     )
-                    .setExpirationDuration(GEO_FENCE_EXPIRATION_TIME)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
-                    .setLoiteringDelay(GEO_FENCE_LOITERING_TIME)
+                    .setExpirationDuration(geofenceExpirationTime)
+                    .setTransitionTypes(transactionType)
+                    .setLoiteringDelay(geofenceLoiteringTime)
                     .build());
         }
         LocationServices.GeofencingApi.addGeofences(
@@ -93,5 +105,11 @@ public class DeviceBackgroundServices extends IntentService implements ResultCal
 
     @Override
     public void onResult(Status status) {
+        if (status.isSuccess()) {
+            DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+            for (Position position : positions) {
+                dbTeleLocation.updateOperationStatus(position.getId(), 1);
+            }
+        }
     }
 }

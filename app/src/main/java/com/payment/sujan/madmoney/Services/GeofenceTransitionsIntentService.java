@@ -10,9 +10,15 @@ import android.support.v7.app.NotificationCompat;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.payment.sujan.madmoney.AppData.Position;
 import com.payment.sujan.madmoney.R;
+import com.payment.sujan.madmoney.Resources.DBTeleLocation;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 public class GeofenceTransitionsIntentService extends IntentService {
@@ -20,41 +26,33 @@ public class GeofenceTransitionsIntentService extends IntentService {
     public GeofenceTransitionsIntentService() {
         super("GeofenceTransitionsIntentService");
     }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-//            String errorMessage = GeofenceErrorMessages.getErrorString(this,
-//                    geofencingEvent.getErrrorCode());
-//            Log.e(TAG, errorMessage);
             return;
         }
-
-        // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
 
-        // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT || geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
 
-            // Get the geofences that were triggered. A single event can trigger
-            // multiple geofences.
-            List triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+            List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-            // Get the transition details as a String.
-            String geofenceTransitionDetails = getGeofenceTransitionDetails(
-                    this,
-                    geofenceTransition,
-                    triggeringGeofences
-            );
+            ArrayList<String> geofenceTransitionIds = getGeofenceTransitionIds(triggeringGeofences);
 
-//             Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
-//            Log.i(TAG, geofenceTransitionDetails);
-        } else {
-            // Log the error.
-//            Log.e(TAG, getString(R.string.geofence_transition_invalid_type,
-//                    geofenceTransition));
+            DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+            Position position;
+            for (String id : geofenceTransitionIds) {
+                dbTeleLocation.updateOperationStatus(id, 2);
+                position = dbTeleLocation.selectTelPosition(id);
+                String message;
+                message = "Congratulations !! You have earned the mad money !! by entering at" + position.getLocationName()
+                        + ":" + position.getDescription() +
+                        " : City" + position.getCity();
+                sendNotification(message);
+            }
         }
     }
 
@@ -62,7 +60,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle("MadMoney")
+                        .setContentTitle("Congratulations! from MadMoney")
                         .setContentText(geofenceTransitionDetails);
 
         Intent resultIntent = new Intent(this, com.payment.sujan.madmoney.MainActivity.class);
@@ -82,9 +80,15 @@ public class GeofenceTransitionsIntentService extends IntentService {
         mNotificationManager.notify(12, mBuilder.build());
     }
 
-    private String getGeofenceTransitionDetails(GeofenceTransitionsIntentService geofenceTransitionsIntentService, int geofenceTransition, List triggeringGeofences) {
+    private ArrayList getGeofenceTransitionIds(List<Geofence> triggeringGeofences) {
 
-        return "Enter/Exit";
+        ArrayList triggeringGeofencesIdsList = new ArrayList();
+
+        for (Geofence geofence : triggeringGeofences) {
+            triggeringGeofencesIdsList.add(geofence.getRequestId());
+        }
+
+        return triggeringGeofencesIdsList;
     }
 
 }

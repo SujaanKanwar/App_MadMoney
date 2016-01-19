@@ -15,13 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.payment.sujan.madmoney.AppData.GlobalStatic;
-import com.payment.sujan.madmoney.Fragments.WalletFragment;
 import com.payment.sujan.madmoney.R;
-import com.payment.sujan.madmoney.Requesters.CreateUserRequest;
-import com.payment.sujan.madmoney.Connectors.CreateUserConnector;
-import com.payment.sujan.madmoney.Resources.FileOperations;
-import com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore;
+import com.payment.sujan.madmoney.Cryptography.KeyPairGeneratorStore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,7 +88,7 @@ public class UserCreateFragment extends Fragment implements com.payment.sujan.ma
 
         if (isEnteredFieldsValid()) {
 
-            com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore.generateKeyPairAndStoreInKeyStore(getActivity().getApplication().getApplicationContext());
+            KeyPairGeneratorStore.generateKeyPairAndStoreInKeyStore(getActivity().getApplication().getApplicationContext());
 
             String publicKey = getJSONFormattedPublicKey();
 
@@ -109,7 +104,7 @@ public class UserCreateFragment extends Fragment implements com.payment.sujan.ma
 
     private String getJSONFormattedPublicKey() {
         JSONObject jsonObject = null;
-        RSAPublicKey publicKey = com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore.getPublicKey();
+        RSAPublicKey publicKey = KeyPairGeneratorStore.getPublicKey();
         try {
             jsonObject = new JSONObject();
             jsonObject.put("MOD", Base64.encodeToString(stripLeadingZeros(publicKey.getModulus().toByteArray()), Base64.NO_WRAP));

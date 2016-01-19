@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.text.method.CharacterPickerDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +16,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.payment.sujan.madmoney.AppData.GlobalStatic;
-import com.payment.sujan.madmoney.AppData.Money;
 import com.payment.sujan.madmoney.Connectors.Constants;
 import com.payment.sujan.madmoney.Cryptography.RSAEncryptionDecryption;
 import com.payment.sujan.madmoney.R;
-import com.payment.sujan.madmoney.Resources.DBMoneyStore;
 import com.payment.sujan.madmoney.Requesters.FetchMoneyRequest;
 import com.payment.sujan.madmoney.Connectors.FetchMoneyConnector;
 import com.payment.sujan.madmoney.Services.UtilityService;
-import com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants;
-import com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore;
-import com.payment.sujan.madmoney.Utility.MoneyStore;
+import com.payment.sujan.madmoney.Cryptography.KeyPairGeneratorStore;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -184,7 +178,8 @@ public class WalletFragment extends Fragment implements com.payment.sujan.madmon
 
         String decryptedOtp = null;
         try {
-            decryptedOtp = new String(com.payment.sujan.madmoney.Cryptography.RSAEncryptionDecryption.Decrypt(encryptedOTP, com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore.getPrivateKey()), Charset.forName("UTF8"));
+            decryptedOtp = new String(RSAEncryptionDecryption.Decrypt(encryptedOTP,
+                    KeyPairGeneratorStore.getPrivateKey()), Charset.forName("UTF8"));
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }

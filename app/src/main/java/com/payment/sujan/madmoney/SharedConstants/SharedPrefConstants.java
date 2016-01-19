@@ -6,6 +6,7 @@ package com.payment.sujan.madmoney.SharedConstants;
 public class SharedPrefConstants {
 
     public static final String GET_TEL_POSITION_UPDATE_DATE = "GET_TEL_POSITION_UPDATE_DATE";
+    public static final String GEO_CITY = "GEO_CITY";
     public static String APK_FILE_NAME = "APK_FILE_NAME";
     public static String SHARED_PREF_NAME = "MAD_MONEY";
     public static String USER_NAME = "USER_NAME";

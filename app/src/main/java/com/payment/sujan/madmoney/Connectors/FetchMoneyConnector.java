@@ -29,7 +29,9 @@ public class FetchMoneyConnector {
 
     private static final String LOGGER_TAG = "CreateUserServiceCall";
 
-    private static final String createUserUrl = "http://192.168.0.103/madmoneyservice.svc/fetchmoney";
+    private static final String BASE_URL = Constants.BASE_URL;
+
+    private static final String createUserUrl = BASE_URL + "/fetchmoney";
 
     private static final boolean isDummy = false;
 

@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -26,7 +25,7 @@ import com.payment.sujan.madmoney.R;
 import com.payment.sujan.madmoney.Requesters.CreateUserRequest;
 import com.payment.sujan.madmoney.Resources.FileOperations;
 import com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants;
-import com.payment.sujan.madmoney.Utility.KeyPairGeneratorStore;
+import com.payment.sujan.madmoney.Cryptography.KeyPairGeneratorStore;
 
 import org.json.JSONException;
 import org.json.JSONObject;

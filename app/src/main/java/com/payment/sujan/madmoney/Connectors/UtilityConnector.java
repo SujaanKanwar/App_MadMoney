@@ -15,10 +15,11 @@ import java.net.URL;
  * Created by Sujan on 11/9/2015.
  */
 public class UtilityConnector {
-    private String BASE_URL = "http://192.168.0.103/MadMoneyService.svc/";
-    private String GET_APK_FILE_URL = "APKFile";
-    private String GET_TEL_LOCATION_URL = "gettlocations";
-    private String TRANS_MONEY = "DepositMoneyToAccount";
+    private String BASE_URL = Constants.BASE_URL;
+    private String GET_APK_FILE_URL = "/APKFile";
+    private String GET_TEL_LOCATION_URL = "/gettlocations";
+    private String SEND_DISCOVERED_LOCATION_URL = "/discoveredLocations";
+    private String TRANS_MONEY = "/DepositMoneyToAccount";
 
     public String getAPKFileFromServer() {
 
@@ -31,6 +32,11 @@ public class UtilityConnector {
         String url = BASE_URL + GET_TEL_LOCATION_URL;
 
         return post(url, data);
+    }
+
+    public String sendDiscoveredLocations(String data) {
+        String url = BASE_URL + SEND_DISCOVERED_LOCATION_URL;
+        return post(url,data);
     }
 
     private String post(String url, String postParameters) {
@@ -74,4 +80,5 @@ public class UtilityConnector {
 
         return response.equals("true");
     }
+
 }

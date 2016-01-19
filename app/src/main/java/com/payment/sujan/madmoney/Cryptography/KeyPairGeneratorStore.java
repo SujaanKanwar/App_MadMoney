@@ -1,18 +1,20 @@
-package com.payment.sujan.madmoney.Utility;
+package com.payment.sujan.madmoney.Cryptography;
 
 import android.content.Context;
 import android.security.KeyPairGeneratorSpec;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.util.Base64;
+import android.util.Xml;
 
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.interfaces.RSAPrivateKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Calendar;
 
@@ -27,12 +29,6 @@ public class KeyPairGeneratorStore {
     private static final String keyAlgorithm = "RSA";
     private static final String androidKeyStore = "AndroidKeyStore";
 
-    /***
-     * API: 19
-     * References //http://nelenkov.blogspot.in/2013/08/credential-storage-enhancements-android-43.html
-     *
-     * @param ctx : getActivity().getApplication().getApplicationContext();
-     */
     public static void generateKeyPairAndStoreInKeyStore(Context ctx) {
         try {
 
@@ -56,7 +52,7 @@ public class KeyPairGeneratorStore {
             KeyPairGenerator kpGenerator = KeyPairGenerator.getInstance(keyAlgorithm, androidKeyStore);
             kpGenerator.initialize(spec);
             KeyPair kp = kpGenerator.generateKeyPair();
-        }catch (Exception e) {
+        } catch (Exception e) {
             //// TODO: 30/9/15 Add exception logging
             String exce = e.toString();
         }
@@ -92,6 +88,24 @@ public class KeyPairGeneratorStore {
             String exce = e.toString();
             return null;
         }
+    }
+
+    public static String SignData(String data) {
+        try {
+            Signature s = Signature.getInstance("SHA256withRSA");
+            s.initSign(KeyPairGeneratorStore.getPrivateKey());
+            s.update(Charset.forName("UTF-8").encode(data));
+
+            return bytesToString(s.sign());
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (SignatureException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String bytesToString(byte[] b) {

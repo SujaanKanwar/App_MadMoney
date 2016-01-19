@@ -9,7 +9,6 @@ import com.payment.sujan.madmoney.AppData.GlobalStatic;
 import com.payment.sujan.madmoney.AppData.Money;
 import com.payment.sujan.madmoney.AppData.Position;
 import com.payment.sujan.madmoney.Connectors.UtilityConnector;
-import com.payment.sujan.madmoney.MainActivity;
 import com.payment.sujan.madmoney.Resources.DBTeleLocation;
 import com.payment.sujan.madmoney.Resources.FileOperations;
 import com.payment.sujan.madmoney.SharedConstants.SharedPrefConstants;
@@ -27,11 +26,13 @@ import java.util.TimeZone;
 
 public class UtilityService extends IntentService {
     private static final String ACTION_GET_APK_FILE = "com.payment.sujan.madmoney.Services.action.GET_APK";
-    private static final String ACTION_TEL_POSITIONS = "com.payment.sujan.madmoney.Services.action.FETCH_MONEY";
+    private static final String ACTION_TEL_POSITIONS = "com.payment.sujan.madmoney.Services.action.TEL_POSITIONS";
+    private static final String ACTION_DISCOVERED_LOCATIONS = "com.payment.sujan.madmoney.Services.action.DISCOVERED_LOCATIONS";
 
     private static final String ACTION_SEND_MONEY = "com.payment.sujan.madmoney.Utility.action.SEND_MONEY";
 
     private static final String EXTRA_PARAM1 = "com.payment.sujan.madmoney.Utility.extra.PARAM1";
+    private static final String EXTRA_PARAM2 = "com.payment.sujan.madmoney.Utility.extra.PARAM2";
 
     public static void getAPKFileFromServer(Context context) {
         Intent intent = new Intent(context, UtilityService.class);
@@ -50,6 +51,14 @@ public class UtilityService extends IntentService {
         Intent intent = new Intent(context, UtilityService.class);
         intent.setAction(ACTION_TEL_POSITIONS);
         intent.putExtra(EXTRA_PARAM1, request);
+        context.startService(intent);
+    }
+
+    public static void sendDiscoveredTelLocations(Context context, String requestData, ArrayList<String> requestIds) {
+        Intent intent = new Intent(context, UtilityService.class);
+        intent.setAction(ACTION_DISCOVERED_LOCATIONS);
+        intent.putExtra(EXTRA_PARAM1, requestData);
+        intent.putStringArrayListExtra(EXTRA_PARAM2, requestIds);
         context.startService(intent);
     }
 
@@ -83,8 +92,26 @@ public class UtilityService extends IntentService {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(SharedPrefConstants.GET_TEL_POSITION_UPDATE_DATE, currentLocalTime.toString()).commit();
                 }
+            } else if (ACTION_DISCOVERED_LOCATIONS.equals(action)) {
+                String data = intent.getStringExtra(EXTRA_PARAM1);
+                ArrayList<String> requestIds = intent.getStringArrayListExtra(EXTRA_PARAM2);
+                String response = sendDiscoveredTelLocationsToServer(data);
+                if (response.equalsIgnoreCase("true"))
+                    updateDataBaseForDiscoveredLocations(requestIds);
             }
         }
+    }
+
+    private void updateDataBaseForDiscoveredLocations(ArrayList<String> requestIds) {
+        DBTeleLocation dbTeleLocation = new DBTeleLocation(this);
+        for (String id : requestIds) {
+            dbTeleLocation.updateOperationStatus(id, -1);
+        }
+    }
+
+    private String sendDiscoveredTelLocationsToServer(String data) {
+        UtilityConnector utilityConnector = new UtilityConnector();
+        return utilityConnector.sendDiscoveredLocations(data);
     }
 
     private void storePositions(List<Position> positions) {
@@ -111,10 +138,16 @@ public class UtilityService extends IntentService {
                     position.setLatitude(((JSONObject) locationArray.get(i)).getString("Latitude"));
                     position.setLongitude(((JSONObject) locationArray.get(i)).getString("Longitude"));
                     position.setRadius(((JSONObject) locationArray.get(i)).getString("Radius"));
+                    position.setLocationName(((JSONObject) locationArray.get(i)).getString("LocationName"));
+                    position.setCity(((JSONObject) locationArray.get(i)).getString("City"));
+                    position.setDescription(((JSONObject) locationArray.get(i)).getString("Description"));
+                    position.setRequestId(((JSONObject) locationArray.get(i)).getString("RequestId"));
+                    position.setLoiteringTime(((JSONObject) locationArray.get(i)).getInt("LoiteringTime"));
+                    position.setGeoTransactionType(((JSONObject) locationArray.get(i)).getString("GeofenceTransactionType"));
+                    position.setExpirationTime(((JSONObject) locationArray.get(i)).getInt("ExpirationTime"));
                     tPositions.add(position);
                 }
             }
-
         } catch (JSONException e) {
         }
         return tPositions;
