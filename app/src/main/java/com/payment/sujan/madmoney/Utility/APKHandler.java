@@ -32,10 +32,15 @@ public class APKHandler {
     public RSAPublicKey getPublicKey(String madMoneyAddress) {
         RSAPublicKey pubKey = null;
         List<com.payment.sujan.madmoney.AppData.APK> apkList = getAPKList();
-        String strPublicKey = searchPublicAddressInAPKList(apkList, madMoneyAddress);
-        JSONObject jsonObject = getJsonObjectOfPublicKey(strPublicKey);
-
         try {
+
+            String strPublicKey = searchPublicAddressInAPKList(apkList, madMoneyAddress);
+            if(strPublicKey == null){
+                throw new Exception("Please update the APK file");
+            }
+
+            JSONObject jsonObject = getJsonObjectOfPublicKey(strPublicKey);
+
             BigInteger modulus = new BigInteger(1, Base64.decode(jsonObject.getString("MOD"), Base64.NO_WRAP));
             BigInteger exponent = new BigInteger(Base64.decode(jsonObject.getString("EXP"), Base64.NO_WRAP));
 
@@ -96,6 +101,8 @@ public class APKHandler {
     }
 
     public JSONObject getJsonObjectOfPublicKey(String strPublicKey) {
+        if(strPublicKey == null)
+            return null;
         JSONObject jObject = null;
         try {
             jObject = new JSONObject(strPublicKey);

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import java.security.interfaces.RSAPublicKey;
 
 import com.payment.sujan.madmoney.Connectors.CreateUserConnector;
+import com.payment.sujan.madmoney.MainActivity;
 import com.payment.sujan.madmoney.R;
 import com.payment.sujan.madmoney.Requesters.CreateUserRequest;
 import com.payment.sujan.madmoney.Resources.FileOperations;
@@ -111,6 +113,8 @@ public class RegisterUserActivity extends AppCompatActivity implements CreateUse
             finish();
 
             Toast.makeText(context, "Congratulations! You have successfully registered.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         } else
             Toast.makeText(context, "Error while user creation. Try after some time.", Toast.LENGTH_SHORT).show();
 

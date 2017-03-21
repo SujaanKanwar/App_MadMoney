@@ -22,15 +22,14 @@
                 android:layout_height="150dp"
 
                 android:layout_gravity="top"
-                android:background="@android:color/holo_blue_light" />
+                android:background="#0A327D" />
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/middle_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_gravity="center"
-            android:background="@android:color/darker_gray" >
+            android:layout_gravity="center">
 
             <Button
                 android:layout_width="match_parent"
@@ -46,8 +45,7 @@
             android:id="@+id/bottom_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_gravity="bottom"
-            android:background="@android:color/holo_purple" />
+            android:layout_gravity="bottom" />
     </FrameLayout>
 
 </RelativeLayout>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MadMoney</string>
+    <string name="app_name">Asset-Manager</string>
     <string name="create_user">Register/CreateUser</string>
 
     <string name="hello_world">Hello world!</string>
@@ -11,7 +11,7 @@
     <string name="none_found" >No Device Found</string>
     <string name="navigation_drawer_open" >Navigation Open </string>
     <string name="navigation_drawer_close" >Navigation Close</string>
-    <string name="title_activity_register_user">New Registration</string>
+    <string name="title_activity_register_user">New User</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

@@ -24,6 +24,7 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -158,12 +159,14 @@ public class OfflineRFragment extends Fragment {
                 //get BT address list from DB
                 ParcelUuid[] uuids = device.getUuids();
                 int i;
-                for (i = 0; i < uuids.length; i++) {
-                    if (uuids[i].getUuid().compareTo(UUID.fromString("00001105-0000-1000-8000-00805f9b34fb")) == 0)
-                        break;
+                if(uuids != null) {
+                    for (i = 0; i < uuids.length; i++) {
+                        if (uuids[i].getUuid().compareTo(UUID.fromString("00001105-0000-1000-8000-00805f9b34fb")) == 0)
+                            break;
+                    }
+                    if (i != uuids.length)
+                        bluetoothDeviceList.add(device);
                 }
-                if (i != uuids.length)
-                    bluetoothDeviceList.add(device);
             }
         }
         GlobalStatic.setBluetoothDeviceList(bluetoothDeviceList);

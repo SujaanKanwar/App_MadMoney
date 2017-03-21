@@ -92,6 +92,7 @@ public class BluetoothBackgroundService extends IntentService {
                     if (socket != null) {
                         mmServerSocket.close();
                         afterReceiveSocketConnection(socket, socket.getRemoteDevice());
+                        break;
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Socket Type:  accept() failed", e);
